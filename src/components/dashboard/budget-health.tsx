@@ -67,7 +67,7 @@ export function BudgetHealth({
         <CardContent className="flex-1 flex items-center justify-center pb-0">
           <ChartContainer
             config={chartConfig}
-            className="mx-auto aspect-square h-full max-h-[160px]"
+            className="mx-auto aspect-square h-[140px] w-[140px]"
           >
             <PieChart>
               <Pie
@@ -75,8 +75,8 @@ export function BudgetHealth({
                 dataKey="value"
                 nameKey="name"
                 strokeWidth={1}
-                innerRadius={60}
-                outerRadius={70}
+                innerRadius={50}
+                outerRadius={60}
                 startAngle={90}
                 endAngle={450}
                 cornerRadius={percentage > 99 ? 0 : 50}
