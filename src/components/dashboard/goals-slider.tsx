@@ -7,6 +7,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  type CarouselApi,
 } from '@/components/ui/carousel';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -24,6 +25,7 @@ interface GoalsSliderProps {
 }
 
 export function GoalsSlider({ goals, setGoals, setShowConfetti }: GoalsSliderProps) {
+  const [api, setApi] = React.useState<CarouselApi>();
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [selectedGoal, setSelectedGoal] = React.useState<Goal | null>(null);
   const [completedGoalId, setCompletedGoalId] = React.useState<string | null>(null);
@@ -45,6 +47,12 @@ export function GoalsSlider({ goals, setGoals, setShowConfetti }: GoalsSliderPro
       setShowConfetti(true);
       setCompletedGoalId(goalId);
 
+      // Card drop animation is ~1.3s.
+      // After it finishes, scroll to the next goal.
+      setTimeout(() => {
+        api?.scrollNext();
+      }, 1300);
+
       // Animation duration is ~2.3s. Remove after that.
       setTimeout(() => {
         setGoals(prevGoals => prevGoals.filter(g => g.id !== goalId));
@@ -61,6 +69,7 @@ export function GoalsSlider({ goals, setGoals, setShowConfetti }: GoalsSliderPro
         </CardHeader>
         <CardContent className="flex-1 flex items-center justify-center">
           <Carousel
+            setApi={setApi}
             opts={{
               align: 'start',
             }}
