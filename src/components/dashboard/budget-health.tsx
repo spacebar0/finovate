@@ -44,7 +44,7 @@ export function BudgetHealth() {
       <CardContent className="flex-1 flex items-center justify-center pb-0">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square h-full max-h-[250px]"
+          className="mx-auto aspect-square h-full max-h-[200px]"
         >
           <PieChart>
             <defs>
@@ -57,15 +57,15 @@ export function BudgetHealth() {
               data={chartData}
               dataKey="value"
               nameKey="name"
-              innerRadius={70}
-              outerRadius={90}
+              innerRadius={60}
+              outerRadius={80}
               startAngle={90}
               endAngle={450}
               cornerRadius={50}
               strokeWidth={0}
             >
             </Pie>
-             <foreignObject x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" width="140" height="140" transform="translate(-70, -70)">
+             <foreignObject x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" width="120" height="120" transform="translate(-60, -60)">
                 <div className="w-full h-full flex flex-col items-center justify-center text-center">
                   <p className="text-4xl font-bold font-headline text-foreground">
                     {budgetHealth.percentage}%
