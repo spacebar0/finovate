@@ -39,7 +39,7 @@ export function Confetti({ active, setActive }: ConfettiProps) {
       recycle={false}
       numberOfPieces={400}
       gravity={0.15}
-      initialVelocityY={20}
+      initialVelocityY={-20}
       initialVelocityX={5}
     />
   );
