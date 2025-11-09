@@ -29,6 +29,8 @@ import type { BudgetState } from '@/app/(main)/page';
 const formSchema = z.object({
   budget: z.coerce.number().positive('Budget must be a positive number.'),
   spending: z.coerce.number().min(0, 'Spending cannot be negative.'),
+  savingsGoal: z.coerce.number().positive('Savings goal must be a positive number.'),
+  currentSavings: z.coerce.number().min(0, 'Current savings cannot be negative.'),
 });
 
 type AdjustBudgetFormValues = z.infer<typeof formSchema>;
@@ -50,17 +52,11 @@ export function AdjustBudgetDialog({
 
   const form = useForm<AdjustBudgetFormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      budget: budgetState.budget,
-      spending: budgetState.spending,
-    },
+    defaultValues: budgetState,
   });
 
   React.useEffect(() => {
-    form.reset({
-      budget: budgetState.budget,
-      spending: budgetState.spending,
-    });
+    form.reset(budgetState);
   }, [budgetState, form]);
 
   const onSubmit = (values: AdjustBudgetFormValues) => {
@@ -103,6 +99,32 @@ export function AdjustBudgetDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Current Spending ($)</FormLabel>
+                  <FormControl>
+                    <Input type="number" step="10" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="savingsGoal"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Monthly Savings Goal ($)</FormLabel>
+                  <FormControl>
+                    <Input type="number" step="10" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="currentSavings"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Current Savings ($)</FormLabel>
                   <FormControl>
                     <Input type="number" step="10" {...field} />
                   </FormControl>

@@ -11,7 +11,10 @@ export const user = {
 export const budgetHealth = {
   percentage: 75,
   status: "On track",
-  savings: 450.75, // Note: This will now be treated as initial 'spending'
+  spending: 450.75,
+  budget: 600,
+  savingsGoal: 200,
+  currentSavings: 150,
 };
 
 export const goals = [

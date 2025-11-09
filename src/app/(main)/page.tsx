@@ -10,13 +10,16 @@ import { budgetHealth as initialBudgetHealth } from '@/lib/data';
 export type BudgetState = {
   spending: number;
   budget: number;
+  savingsGoal: number;
+  currentSavings: number;
 };
 
 export default function DashboardPage() {
   const [budgetState, setBudgetState] = React.useState<BudgetState>({
-    spending: initialBudgetHealth.savings,
-    budget:
-      initialBudgetHealth.savings / (initialBudgetHealth.percentage / 100),
+    spending: initialBudgetHealth.spending,
+    budget: initialBudgetHealth.budget,
+    savingsGoal: initialBudgetHealth.savingsGoal,
+    currentSavings: initialBudgetHealth.currentSavings,
   });
 
   return (

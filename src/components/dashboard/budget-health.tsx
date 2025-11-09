@@ -71,27 +71,20 @@ export function BudgetHealth({
           >
             <PieChart>
               <Pie
-                data={[{ value: 100 }]}
+                data={chartData}
                 dataKey="value"
+                nameKey="name"
                 strokeWidth={1}
                 innerRadius={60}
                 outerRadius={80}
-                fill={chartConfig.background.color}
                 startAngle={90}
                 endAngle={450}
-              />
-              <Pie
-                data={[{ value: percentage }]}
-                dataKey="value"
-                nameKey="name"
-                innerRadius={60}
-                outerRadius={80}
-                startAngle={90}
-                endAngle={90 + (Math.min(percentage, 100) / 100) * 360}
                 cornerRadius={percentage > 99 ? 0 : 50}
-                strokeWidth={0}
-                fill={color}
-              />
+              >
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.fill} />
+                ))}
+              </Pie>
               <foreignObject
                 x="50%"
                 y="50%"
