@@ -1,7 +1,8 @@
+
 "use client";
 
 import * as React from "react";
-import { Pie, PieChart } from "recharts";
+import { Pie, PieChart, Cell } from "recharts";
 import {
   Card,
   CardContent,
@@ -54,16 +55,29 @@ export function BudgetHealth() {
               </linearGradient>
             </defs>
             <Pie
+              data={[{ value: 100 }]}
+              dataKey="value"
+              strokeWidth={0}
+              innerRadius={60}
+              outerRadius={80}
+              fill={chartConfig.background.color}
+              startAngle={90}
+              endAngle={450}
+            />
+            <Pie
               data={chartData}
               dataKey="value"
               nameKey="name"
               innerRadius={60}
               outerRadius={80}
               startAngle={90}
-              endAngle={450}
+              endAngle={90 + (budgetHealth.percentage / 100) * 360}
               cornerRadius={50}
               strokeWidth={0}
             >
+               {chartData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.name === 'progress' ? entry.fill : 'none'} />
+              ))}
             </Pie>
              <foreignObject x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" width="120" height="120" transform="translate(-60, -60)">
                 <div className="w-full h-full flex flex-col items-center justify-center text-center">
@@ -88,3 +102,4 @@ export function BudgetHealth() {
     </Card>
   );
 }
+
