@@ -1,5 +1,3 @@
-import type { LucideIcon } from "lucide-react";
-
 export const user = {
   name: "Alex",
   avatarUrl: "user-avatar",
@@ -9,15 +7,21 @@ export const user = {
 };
 
 export const budgetHealth = {
-  percentage: 75,
-  status: "On track",
   spending: 450.75,
   budget: 600,
   savingsGoal: 200,
   currentSavings: 150,
 };
 
-export const goals = [
+export type Goal = {
+  id: string;
+  title: string;
+  currentAmount: number;
+  targetAmount: number;
+  deadline: string;
+};
+
+export const goals: Goal[] = [
   {
     id: "goal1",
     title: "New Laptop",

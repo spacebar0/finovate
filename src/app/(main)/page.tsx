@@ -5,7 +5,11 @@ import { DashboardHeader } from '@/components/dashboard/header';
 import { BudgetHealth } from '@/components/dashboard/budget-health';
 import { GoalsSlider } from '@/components/dashboard/goals-slider';
 import { ActivityFeed } from '@/components/dashboard/activity-feed';
-import { budgetHealth as initialBudgetHealth } from '@/lib/data';
+import {
+  budgetHealth as initialBudgetHealth,
+  goals as initialGoals,
+} from '@/lib/data';
+import type { Goal } from '@/lib/data';
 
 export type BudgetState = {
   spending: number;
@@ -21,6 +25,7 @@ export default function DashboardPage() {
     savingsGoal: initialBudgetHealth.savingsGoal,
     currentSavings: initialBudgetHealth.currentSavings,
   });
+  const [goals, setGoals] = React.useState<Goal[]>(initialGoals);
 
   return (
     <div className="container mx-auto max-w-4xl p-4 md:p-6">
@@ -31,7 +36,7 @@ export default function DashboardPage() {
             budgetState={budgetState}
             setBudgetState={setBudgetState}
           />
-          <GoalsSlider />
+          <GoalsSlider goals={goals} setGoals={setGoals} />
         </div>
         <ActivityFeed />
       </div>
