@@ -65,7 +65,7 @@ export function BudgetHealth() {
               endAngle={450}
             />
             <Pie
-              data={chartData}
+              data={[{ value: budgetHealth.percentage }]}
               dataKey="value"
               nameKey="name"
               innerRadius={60}
@@ -74,11 +74,8 @@ export function BudgetHealth() {
               endAngle={90 + (budgetHealth.percentage / 100) * 360}
               cornerRadius={50}
               strokeWidth={0}
-            >
-               {chartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.name === 'progress' ? entry.fill : 'none'} />
-              ))}
-            </Pie>
+              fill="url(#gradient-primary)"
+            />
              <foreignObject x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" width="120" height="120" transform="translate(-60, -60)">
                 <div className="w-full h-full flex flex-col items-center justify-center text-center">
                   <p className="text-4xl font-bold font-headline text-foreground">
@@ -102,4 +99,3 @@ export function BudgetHealth() {
     </Card>
   );
 }
-
