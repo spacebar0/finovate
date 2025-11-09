@@ -98,7 +98,6 @@ export function BudgetHealth({
                   <p className="text-3xl font-bold font-headline text-foreground">
                     {percentage}%
                   </p>
-                  <p className="text-xs text-muted-foreground">{status}</p>
                 </div>
               </foreignObject>
             </PieChart>
