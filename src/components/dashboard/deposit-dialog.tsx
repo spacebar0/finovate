@@ -38,7 +38,7 @@ interface DepositDialogProps {
   setIsOpen: (open: boolean) => void;
   goal: Goal;
   setGoals: React.Dispatch<React.SetStateAction<Goal[]>>;
-  onDeposit: () => void;
+  onGoalComplete: (goalId: string) => void;
 }
 
 export function DepositDialog({
@@ -46,7 +46,7 @@ export function DepositDialog({
   setIsOpen,
   goal,
   setGoals,
-  onDeposit,
+  onGoalComplete,
 }: DepositDialogProps) {
   const { toast } = useToast();
 
@@ -58,22 +58,29 @@ export function DepositDialog({
   });
 
   const onSubmit = (values: DepositFormValues) => {
+    const newCurrentAmount = goal.currentAmount + values.amount;
+    const isCompleted = newCurrentAmount >= goal.targetAmount;
+
     setGoals(prevGoals =>
       prevGoals.map(g =>
         g.id === goal.id
-          ? { ...g, currentAmount: g.currentAmount + values.amount }
+          ? { ...g, currentAmount: Math.min(newCurrentAmount, g.targetAmount) }
           : g
       )
     );
     setIsOpen(false);
     form.reset();
-    toast({
-      title: 'Deposit Successful',
-      description: `$${values.amount.toFixed(
-        2
-      )} has been added to your "${goal.title}" goal.`,
-    });
-    onDeposit();
+
+    if (isCompleted) {
+      onGoalComplete(goal.id);
+    } else {
+      toast({
+        title: 'Deposit Successful',
+        description: `$${values.amount.toFixed(
+          2
+        )} has been added to your "${goal.title}" goal.`,
+      });
+    }
   };
 
   return (

@@ -30,7 +30,7 @@ export default function DashboardPage() {
   const [showConfetti, setShowConfetti] = React.useState(false);
 
   const handleDeposit = () => {
-    setShowConfetti(true);
+    // Confetti is now triggered from the GoalsSlider when a goal is completed
   };
 
   return (
@@ -43,7 +43,11 @@ export default function DashboardPage() {
             budgetState={budgetState}
             setBudgetState={setBudgetState}
           />
-          <GoalsSlider goals={goals} setGoals={setGoals} onDeposit={handleDeposit} />
+          <GoalsSlider
+            goals={goals}
+            setGoals={setGoals}
+            setShowConfetti={setShowConfetti}
+          />
         </div>
         <ActivityFeed />
       </div>

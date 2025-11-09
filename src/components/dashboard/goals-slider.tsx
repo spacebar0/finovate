@@ -12,21 +12,45 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { DepositDialog } from '@/components/dashboard/deposit-dialog';
+import { GoalCompletionTick } from '@/components/dashboard/goal-completion-tick';
 import type { Goal } from '@/lib/data';
+import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 interface GoalsSliderProps {
   goals: Goal[];
   setGoals: React.Dispatch<React.SetStateAction<Goal[]>>;
-  onDeposit: () => void;
+  setShowConfetti: (show: boolean) => void;
 }
 
-export function GoalsSlider({ goals, setGoals, onDeposit }: GoalsSliderProps) {
+export function GoalsSlider({ goals, setGoals, setShowConfetti }: GoalsSliderProps) {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [selectedGoal, setSelectedGoal] = React.useState<Goal | null>(null);
+  const [completedGoalId, setCompletedGoalId] = React.useState<string | null>(null);
+  const { toast } = useToast();
+
 
   const handleDepositClick = (goal: Goal) => {
     setSelectedGoal(goal);
     setIsDialogOpen(true);
+  };
+
+  const handleGoalComplete = (goalId: string) => {
+    const goal = goals.find(g => g.id === goalId);
+    if (goal) {
+      toast({
+        title: 'Goal Completed!',
+        description: `You've reached your goal for "${goal.title}"!`,
+      });
+      setShowConfetti(true);
+      setCompletedGoalId(goalId);
+
+      // Animation duration is ~2.3s. Remove after that.
+      setTimeout(() => {
+        setGoals(prevGoals => prevGoals.filter(g => g.id !== goalId));
+        setCompletedGoalId(null);
+      }, 2300);
+    }
   };
 
   return (
@@ -46,9 +70,15 @@ export function GoalsSlider({ goals, setGoals, onDeposit }: GoalsSliderProps) {
               {goals.map(goal => {
                 const progress =
                   (goal.currentAmount / goal.targetAmount) * 100;
+                const isCompleted = completedGoalId === goal.id;
+
                 return (
-                  <CarouselItem key={goal.id}>
-                    <div className="p-1">
+                  <CarouselItem
+                    key={goal.id}
+                    className={cn(isCompleted && 'animate-card-drop')}
+                  >
+                    <div className="p-1 relative">
+                       {isCompleted && <GoalCompletionTick />}
                       <Card className="bg-background/40">
                         <CardContent className="flex flex-col items-center justify-center p-6 space-y-4">
                           <h3 className="font-semibold text-lg text-foreground">
@@ -72,6 +102,7 @@ export function GoalsSlider({ goals, setGoals, onDeposit }: GoalsSliderProps) {
                           <Button
                             onClick={() => handleDepositClick(goal)}
                             className="w-full bg-gradient-to-r from-primary to-secondary text-primary-foreground shadow-[0_4px_15px_rgba(53,37,139,0.35)] hover:shadow-lg transition-shadow"
+                            disabled={isCompleted}
                           >
                             Deposit
                           </Button>
@@ -93,7 +124,7 @@ export function GoalsSlider({ goals, setGoals, onDeposit }: GoalsSliderProps) {
           setIsOpen={setIsDialogOpen}
           goal={selectedGoal}
           setGoals={setGoals}
-          onDeposit={onDeposit}
+          onGoalComplete={handleGoalComplete}
         />
       )}
     </>
