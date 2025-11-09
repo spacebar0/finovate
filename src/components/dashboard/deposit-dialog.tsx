@@ -38,6 +38,7 @@ interface DepositDialogProps {
   setIsOpen: (open: boolean) => void;
   goal: Goal;
   setGoals: React.Dispatch<React.SetStateAction<Goal[]>>;
+  onDeposit: () => void;
 }
 
 export function DepositDialog({
@@ -45,6 +46,7 @@ export function DepositDialog({
   setIsOpen,
   goal,
   setGoals,
+  onDeposit,
 }: DepositDialogProps) {
   const { toast } = useToast();
 
@@ -71,6 +73,7 @@ export function DepositDialog({
         2
       )} has been added to your "${goal.title}" goal.`,
     });
+    onDeposit();
   };
 
   return (

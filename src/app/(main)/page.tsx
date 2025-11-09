@@ -10,6 +10,7 @@ import {
   goals as initialGoals,
 } from '@/lib/data';
 import type { Goal } from '@/lib/data';
+import { Confetti } from '@/components/ui/confetti';
 
 export type BudgetState = {
   spending: number;
@@ -26,9 +27,15 @@ export default function DashboardPage() {
     currentSavings: initialBudgetHealth.currentSavings,
   });
   const [goals, setGoals] = React.useState<Goal[]>(initialGoals);
+  const [showConfetti, setShowConfetti] = React.useState(false);
+
+  const handleDeposit = () => {
+    setShowConfetti(true);
+  };
 
   return (
     <div className="container mx-auto max-w-4xl p-4 md:p-6">
+      <Confetti active={showConfetti} setActive={setShowConfetti} />
       <div className="space-y-6">
         <DashboardHeader />
         <div className="grid gap-6 md:grid-cols-2">
@@ -36,7 +43,7 @@ export default function DashboardPage() {
             budgetState={budgetState}
             setBudgetState={setBudgetState}
           />
-          <GoalsSlider goals={goals} setGoals={setGoals} />
+          <GoalsSlider goals={goals} setGoals={setGoals} onDeposit={handleDeposit} />
         </div>
         <ActivityFeed />
       </div>

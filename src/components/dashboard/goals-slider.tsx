@@ -17,9 +17,10 @@ import type { Goal } from '@/lib/data';
 interface GoalsSliderProps {
   goals: Goal[];
   setGoals: React.Dispatch<React.SetStateAction<Goal[]>>;
+  onDeposit: () => void;
 }
 
-export function GoalsSlider({ goals, setGoals }: GoalsSliderProps) {
+export function GoalsSlider({ goals, setGoals, onDeposit }: GoalsSliderProps) {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [selectedGoal, setSelectedGoal] = React.useState<Goal | null>(null);
 
@@ -92,6 +93,7 @@ export function GoalsSlider({ goals, setGoals }: GoalsSliderProps) {
           setIsOpen={setIsDialogOpen}
           goal={selectedGoal}
           setGoals={setGoals}
+          onDeposit={onDeposit}
         />
       )}
     </>
