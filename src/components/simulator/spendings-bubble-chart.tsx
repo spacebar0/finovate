@@ -51,50 +51,50 @@ export function SpendingsBubbleChart() {
         <CardTitle className="font-headline">Spendees</CardTitle>
         <CardDescription>Your spending breakdown</CardDescription>
       </CardHeader>
-      <ChartContainer
-        config={chartConfig}
-        className="flex-1 flex flex-col"
-      >
-        <CardContent className="flex-1 flex items-center justify-center pb-0">
-            <PieChart className="mx-auto aspect-square h-[200px] w-[200px]">
-              <Pie
-                data={chartData}
-                dataKey="value"
-                nameKey="name"
-                innerRadius={50}
-                outerRadius={80}
-                strokeWidth={2}
-                stroke="hsl(var(--background))"
+      <CardContent className="flex-1 flex items-center justify-center pb-0">
+        <ChartContainer
+          config={chartConfig}
+          className="mx-auto aspect-square h-full max-h-[250px]"
+        >
+          <PieChart>
+            <Pie
+              data={chartData}
+              dataKey="value"
+              nameKey="name"
+              innerRadius={50}
+              outerRadius={80}
+              strokeWidth={2}
+              stroke="hsl(var(--background))"
+            >
+              {chartData.map(entry => (
+                <Cell key={entry.name} fill={entry.color} />
+              ))}
+            </Pie>
+            <foreignObject
+                x="50%"
+                y="50%"
+                textAnchor="middle"
+                dominantBaseline="middle"
+                width="100"
+                height="100"
+                transform="translate(-50, -50)"
               >
-                {chartData.map(entry => (
-                  <Cell key={entry.name} fill={entry.color} />
-                ))}
-              </Pie>
-              <foreignObject
-                  x="50%"
-                  y="50%"
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                  width="100"
-                  height="100"
-                  transform="translate(-50, -50)"
-                >
-                  <div className="w-full h-full flex flex-col items-center justify-center text-center">
-                    <p className="text-xs text-muted-foreground">Total</p>
-                    <p className="text-2xl font-bold font-headline text-foreground">
-                      ${totalSpendings.toLocaleString()}
-                    </p>
-                  </div>
-                </foreignObject>
-            </PieChart>
-        </CardContent>
-        <CardFooter className="flex-col gap-2 text-sm pt-4">
-          <ChartLegend
-            content={<ChartLegendContent nameKey="name" />}
-            className="-mt-2"
-          />
-        </CardFooter>
-      </ChartContainer>
+                <div className="w-full h-full flex flex-col items-center justify-center text-center">
+                  <p className="text-xs text-muted-foreground">Total</p>
+                  <p className="text-2xl font-bold font-headline text-foreground">
+                    ${totalSpendings.toLocaleString()}
+                  </p>
+                </div>
+              </foreignObject>
+          </PieChart>
+        </ChartContainer>
+      </CardContent>
+      <CardFooter className="flex-col gap-2 text-sm pt-4">
+        <ChartLegend
+          content={<ChartLegendContent nameKey="name" />}
+          className="-mt-2"
+        />
+      </CardFooter>
     </Card>
   );
 }
