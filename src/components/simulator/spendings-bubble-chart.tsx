@@ -22,7 +22,6 @@ export function SpendingsBubbleChart() {
 
   const bubbles = chartData.map(item => {
     const percentage = (item.value / totalSpendings) * 100;
-    // Using a non-linear scale for size to make differences more apparent
     const size = 50 + percentage * 2.5; 
     return {
       ...item,
@@ -31,11 +30,10 @@ export function SpendingsBubbleChart() {
     };
   });
 
-  // Manually adjusted positions for better overlapping and composition
-  const bubblePositions: { [key: string]: { top: string, left: string } } = {
-    Essentials: { top: '50%', left: '40%' },
-    Lifestyle: { top: '20%', left: '15%' },
-    Impulse: { top: '55%', left: '10%' },
+  const bubblePositions: { [key: string]: { top: string, left: string, zIndex: number } } = {
+    Essentials: { top: '50%', left: '50%', zIndex: 1 },
+    Lifestyle: { top: '30%', left: '25%', zIndex: 2 },
+    Impulse: { top: '65%', left: '20%', zIndex: 3 },
   };
 
   return (
@@ -45,7 +43,7 @@ export function SpendingsBubbleChart() {
         <CardDescription>Your spending breakdown</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 flex items-center justify-center">
-        <div className="relative w-full h-[250px]">
+        <div className="relative w-[300px] h-[250px]">
           {bubbles.map(bubble => {
             const position = bubblePositions[bubble.name];
             return (
@@ -57,9 +55,10 @@ export function SpendingsBubbleChart() {
                   height: `${bubble.size}px`,
                   top: position.top,
                   left: position.left,
-                  background: `radial-gradient(circle at center, ${bubble.color}40, transparent 60%)`,
-                  boxShadow: `0 0 40px -5px ${bubble.color}, inset 0 0 20px -10px ${bubble.color}`,
-                  backdropFilter: 'blur(2px)',
+                  zIndex: position.zIndex,
+                  backgroundColor: `${bubble.color}80`, // Solid color with 50% opacity
+                  boxShadow: `0 0 30px -10px ${bubble.color}`,
+                  backdropFilter: 'blur(5px)',
                 }}
               >
                 <div className='flex flex-col'>
