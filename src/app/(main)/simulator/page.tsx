@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { InvestmentGrowthChart } from '@/components/simulator/investment-growth-chart';
-import { SpendingsBubbleChart } from '@/components/simulator/spendings-bubble-chart';
+import { SpendingTrendChart } from '@/components/simulator/spending-trend-chart';
 import { GoalsTrackerChart } from '@/components/simulator/goals-tracker-chart';
 
 export default function SimulatorPage() {
@@ -12,7 +12,7 @@ export default function SimulatorPage() {
         <div className="lg:col-span-2">
           <InvestmentGrowthChart />
         </div>
-        <SpendingsBubbleChart />
+        <SpendingTrendChart />
         <GoalsTrackerChart />
       </div>
     </div>
