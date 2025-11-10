@@ -13,7 +13,6 @@ import {
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -24,33 +23,40 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ChartTooltipContent } from '@/components/ui/chart';
+import { format, subDays } from 'date-fns';
 
-const chartData = [
-  { date: '2024-07-01', spending: 4000 },
-  { date: '2024-07-02', spending: 3000 },
-  { date: '2024-07-03', spending: 5000 },
-  { date: '2024-07-04', spending: 8000 },
-  { date: '2024-07-05', spending: 4500 },
-  { date: '2024-07-06', spending: 6000 },
-  { date: '2024-07-07', spending: 7000 },
-];
-
-const chartConfig = {
-  spending: {
-    label: 'Spending',
-    color: 'hsl(var(--primary))',
-  },
+const generateData = (days: number) => {
+  const today = new Date();
+  return Array.from({ length: days }, (_, i) => {
+    const date = subDays(today, days - 1 - i);
+    return {
+      date: format(date, 'yyyy-MM-dd'),
+      spending:
+        2000 +
+        Math.sin(i / (days / (Math.PI * (days > 30 ? 4 : 2)))) * 1500 + // Seasonal trend
+        Math.random() * 800, // Daily noise
+    };
+  }).map(d => ({ ...d, spending: Math.round(d.spending) }));
 };
 
+const dataSets: { [key: string]: { date: string; spending: number }[] } = {
+  '7': generateData(7),
+  '30': generateData(30),
+  '90': generateData(90),
+};
+
+
 export function SpendingTrendChart() {
+  const [timeRange, setTimeRange] = React.useState('7');
+  const chartData = dataSets[timeRange] || dataSets['7'];
+
   return (
     <Card className="bg-card/80 backdrop-blur-lg border-border">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="font-headline">Spending Trend</CardTitle>
-        <Select defaultValue="7">
-          <SelectTrigger className="w-[120px]">
-            <SelectValue placeholder="Last 7 days" />
+        <Select value={timeRange} onValueChange={setTimeRange}>
+          <SelectTrigger className="w-[140px]">
+            <SelectValue placeholder="Select range" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="7">Last 7 days</SelectItem>
@@ -80,6 +86,7 @@ export function SpendingTrendChart() {
                 if (active && payload && payload.length) {
                   return (
                     <div className="p-2 bg-background/80 backdrop-blur-sm rounded-lg border border-border shadow-lg">
+                       <p className="text-muted-foreground text-xs">{format(new Date(label), "MMM d, yyyy")}</p>
                       <p className="text-foreground font-bold">{`$${(
                         payload[0].value as number
                       ).toLocaleString()}`}</p>
