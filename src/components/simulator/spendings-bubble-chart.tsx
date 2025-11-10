@@ -115,10 +115,12 @@ export function SpendingsBubbleChart() {
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex-col gap-2 text-sm pt-4">
-        <ChartLegend
-          content={<ChartLegendContent nameKey="name" />}
-          className="flex-wrap"
-        />
+        <ChartContainer config={chartConfig} className='w-full'>
+            <ChartLegend
+              content={<ChartLegendContent nameKey="name" />}
+              className="flex-wrap"
+            />
+        </ChartContainer>
       </CardFooter>
     </Card>
   );
