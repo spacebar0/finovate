@@ -56,9 +56,8 @@ export function SpendingsBubbleChart() {
                   top: position.top,
                   left: position.left,
                   zIndex: position.zIndex,
-                  backgroundColor: `${bubble.color}80`, // Solid color with 50% opacity
-                  boxShadow: `0 0 30px -10px ${bubble.color}`,
-                  backdropFilter: 'blur(5px)',
+                  backgroundColor: bubble.color,
+                  boxShadow: `0 0 30px -5px ${bubble.color}`,
                 }}
               >
                 <div className='flex flex-col'>
