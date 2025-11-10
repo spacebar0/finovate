@@ -11,7 +11,7 @@ export default {
     extend: {
       fontFamily: {
         body: ['Satoshi', 'sans-serif'],
-        headline: ['Orbitron', 'sans-serif'],
+        headline: ['Fedra Sans', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {

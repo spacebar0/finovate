@@ -22,20 +22,8 @@
 }
 
 @font-face {
-  font-family: 'Orbitron';
-  src: url('/fonts/Orbitron-Regular.ttf') format('truetype');
-  font-weight: 400;
-  font-style: normal;
-}
-@font-face {
-  font-family: 'Orbitron';
-  src: url('/fonts/Orbitron-Medium.ttf') format('truetype');
-  font-weight: 500;
-  font-style: normal;
-}
-@font-face {
-  font-family: 'Orbitron';
-  src: url('/fonts/Orbitron-Bold.ttf') format('truetype');
+  font-family: 'Fedra Sans';
+  src: url('/fonts/Fedra Sans Bold.otf') format('opentype');
   font-weight: 700;
   font-style: normal;
 }
