@@ -98,7 +98,7 @@ export function ScenarioComparisonTool() {
             />
             <Tooltip
               content={<ChartTooltipContent
-                formatter={(value, name) => [`$${value.toLocaleString()}`]}
+                formatter={(value, name) => [`$${(value as number).toLocaleString()}`]}
                 labelFormatter={(label) => format(new Date(label), 'MMM yyyy')}
               />}
             />
