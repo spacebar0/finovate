@@ -22,18 +22,20 @@ export function SpendingsBubbleChart() {
 
   const bubbles = chartData.map(item => {
     const percentage = (item.value / totalSpendings) * 100;
+    // Using a non-linear scale for size to make differences more apparent
+    const size = 50 + percentage * 2.5; 
     return {
       ...item,
       percentage: Math.round(percentage),
-      size: Math.sqrt(percentage) * 12, // Scale size for better visual balance
+      size: size,
     };
   });
 
-  // Position the bubbles manually for the desired overlap effect
-  const bubblePositions: { [key: string]: { top?: string, bottom?: string, left?: string, right?: string } } = {
-    Essentials: { top: '0%', left: '15%' },
-    Lifestyle: { bottom: '5%', right: '10%' },
-    Impulse: { bottom: '20%', left: '5%' },
+  // Manually adjusted positions for better overlapping and composition
+  const bubblePositions: { [key: string]: { top: string, left: string } } = {
+    Essentials: { top: '50%', left: '40%' },
+    Lifestyle: { top: '20%', left: '15%' },
+    Impulse: { top: '55%', left: '10%' },
   };
 
   return (
@@ -49,22 +51,20 @@ export function SpendingsBubbleChart() {
             return (
               <div
                 key={bubble.name}
-                className="absolute rounded-full flex items-center justify-center text-white font-bold text-center transition-all duration-300"
+                className="absolute rounded-full flex items-center justify-center text-white font-bold text-center transition-all duration-300 -translate-x-1/2 -translate-y-1/2"
                 style={{
                   width: `${bubble.size}px`,
                   height: `${bubble.size}px`,
                   top: position.top,
-                  bottom: position.bottom,
                   left: position.left,
-                  right: position.right,
-                  background: `radial-gradient(circle at 30% 30%, ${bubble.color}BF, ${bubble.color}80)`,
-                  boxShadow: `0 0 40px -10px ${bubble.color}`,
-                  backdropFilter: 'blur(4px)',
+                  background: `radial-gradient(circle at center, ${bubble.color}40, transparent 60%)`,
+                  boxShadow: `0 0 40px -5px ${bubble.color}, inset 0 0 20px -10px ${bubble.color}`,
+                  backdropFilter: 'blur(2px)',
                 }}
               >
                 <div className='flex flex-col'>
-                  <span className="text-2xl font-headline">{bubble.percentage}%</span>
-                  <span className="text-xs uppercase tracking-wider">{bubble.name}</span>
+                  <span className="text-2xl font-headline drop-shadow-md">{bubble.percentage}%</span>
+                  <span className="text-xs uppercase tracking-wider opacity-80">{bubble.name}</span>
                 </div>
               </div>
             );
