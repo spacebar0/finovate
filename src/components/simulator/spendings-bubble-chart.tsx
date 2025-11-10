@@ -40,40 +40,17 @@ const chartConfig = {
   },
 };
 
-const ActiveSectorMark = ({
-  cx,
-  cy,
-  innerRadius,
-  outerRadius,
-  startAngle,
-  endAngle,
-  fill,
-}: any) => {
-  if (!cx || !cy) return null;
-  return (
-    <g>
-      <Sector
-        cx={cx}
-        cy={cy}
-        innerRadius={innerRadius}
-        outerRadius={outerRadius * 1.05}
-        startAngle={startAngle}
-        endAngle={endAngle}
-        fill={fill}
-        stroke="hsl(var(--background))"
-        strokeWidth={2}
-      />
-    </g>
-  );
-};
-
-
 export function SpendingsBubbleChart() {
-  const [activeIndex, setActiveIndex] = React.useState(0);
-  const totalSpendings = React.useMemo(() => {
+  const totalValue = React.useMemo(() => {
     return chartData.reduce((acc, curr) => acc + curr.value, 0);
   }, []);
-  const activeEntry = chartData[activeIndex];
+
+  const [activeCategory, setActiveCategory] = React.useState(
+    chartData[0].name
+  );
+
+  const activeValue =
+    chartData.find(d => d.name === activeCategory)?.value || 0;
 
   return (
     <Card className="flex flex-col bg-card/80 backdrop-blur-lg border-border">
@@ -81,27 +58,24 @@ export function SpendingsBubbleChart() {
         <CardTitle className="font-headline">Spendees</CardTitle>
         <CardDescription>Your spending breakdown</CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 pb-0">
+      <CardContent className="flex-1 flex items-center justify-center pb-0">
         <ChartContainer
           config={chartConfig}
           className="mx-auto aspect-square max-h-[300px]"
         >
           <PieChart
-            onMouseEnter={(_, index) => setActiveIndex(index)}
-            onMouseLeave={() => setActiveIndex(0)}
+            onMouseEnter={(_, index) => setActiveCategory(chartData[index].name)}
           >
             <Pie
               data={chartData}
               dataKey="value"
               nameKey="name"
-              innerRadius={80}
-              outerRadius={100}
+              innerRadius={60}
+              outerRadius={90}
               startAngle={90}
               endAngle={450}
               stroke="hsl(var(--background))"
               strokeWidth={3}
-              activeIndex={activeIndex}
-              activeShape={ActiveSectorMark}
             >
               {chartData.map(entry => (
                 <Cell key={entry.name} fill={entry.color} />
@@ -118,26 +92,25 @@ export function SpendingsBubbleChart() {
             >
               <div className="w-full h-full flex flex-col items-center justify-center text-center">
                 <p className="text-muted-foreground text-sm font-medium">
-                  {activeEntry.name}
+                  {activeCategory}
                 </p>
                 <p className="text-3xl font-bold font-headline text-foreground">
-                  ${activeEntry.value.toLocaleString()}
+                  ${activeValue.toLocaleString()}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {Math.round((activeEntry.value / totalSpendings) * 100)}% of
-                  total
+                  {Math.round((activeValue / totalValue) * 100)}% of total
                 </p>
               </div>
             </foreignObject>
           </PieChart>
+          <CardFooter className="flex-col gap-2 text-sm pt-4">
+            <ChartLegend
+              content={<ChartLegendContent nameKey="name" />}
+              className="-mx-2 flex-wrap"
+            />
+          </CardFooter>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col gap-2 text-sm pt-4">
-        <ChartLegend
-            content={<ChartLegendContent nameKey="name" />}
-            className="-mx-2 flex-wrap"
-          />
-      </CardFooter>
     </Card>
   );
 }
