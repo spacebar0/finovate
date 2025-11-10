@@ -22,7 +22,7 @@ export function SpendingsBubbleChart() {
 
   const bubbles = chartData.map(item => {
     const percentage = (item.value / totalSpendings) * 100;
-    const size = 50 + percentage * 2.5; 
+    const size = 50 + percentage * 2;
     return {
       ...item,
       percentage: Math.round(percentage),
@@ -30,11 +30,10 @@ export function SpendingsBubbleChart() {
     };
   });
 
-  // Explicitly defining positions for visibility and overlap
-  const bubblePositions: { [key: string]: { top: string, left: string, zIndex: number } } = {
+  const bubblePositions: { [key: string]: { top: string; left: string; zIndex: number } } = {
     Essentials: { top: '50%', left: '50%', zIndex: 1 }, // Center and back
-    Lifestyle: { top: '30%', left: '25%', zIndex: 2 }, // Top-left overlap
-    Impulse: { top: '65%', left: '20%', zIndex: 3 },  // Bottom-left overlap
+    Lifestyle: { top: '40%', left: '30%', zIndex: 2 }, // Top-left overlap
+    Impulse: { top: '65%', left: '35%', zIndex: 3 }, // Bottom-left overlap
   };
 
   return (
