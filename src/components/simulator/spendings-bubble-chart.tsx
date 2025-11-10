@@ -1,13 +1,22 @@
 'use client';
 
 import * as React from 'react';
+import { Label, Pie, PieChart, Cell } from 'recharts';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from '@/components/ui/card';
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+} from '@/components/ui/chart';
 
 const chartData = [
   { name: 'Essentials', value: 4332, color: 'hsl(var(--chart-1))' },
@@ -15,26 +24,28 @@ const chartData = [
   { name: 'Impulse', value: 1140, color: 'hsl(330, 80%, 60%)' },
 ];
 
+const chartConfig = {
+  value: {
+    label: 'Spendings',
+  },
+  Essentials: {
+    label: 'Essentials',
+    color: 'hsl(var(--chart-1))',
+  },
+  Lifestyle: {
+    label: 'Lifestyle',
+    color: 'hsl(var(--chart-4))',
+  },
+  Impulse: {
+    label: 'Impulse',
+    color: 'hsl(330, 80%, 60%)',
+  },
+};
+
 export function SpendingsBubbleChart() {
   const totalSpendings = React.useMemo(() => {
     return chartData.reduce((acc, curr) => acc + curr.value, 0);
   }, []);
-
-  const bubbles = chartData.map(item => {
-    const percentage = (item.value / totalSpendings) * 100;
-    const size = 50 + percentage * 2;
-    return {
-      ...item,
-      percentage: Math.round(percentage),
-      size: size,
-    };
-  });
-
-  const bubblePositions: { [key: string]: { top: string; left: string; zIndex: number } } = {
-    Essentials: { top: '50%', left: '50%', zIndex: 1 }, // Center and back
-    Lifestyle: { top: '40%', left: '30%', zIndex: 2 }, // Top-left overlap
-    Impulse: { top: '65%', left: '35%', zIndex: 3 }, // Bottom-left overlap
-  };
 
   return (
     <Card className="flex flex-col bg-card/80 backdrop-blur-lg border-border">
@@ -42,33 +53,65 @@ export function SpendingsBubbleChart() {
         <CardTitle className="font-headline">Spendees</CardTitle>
         <CardDescription>Your spending breakdown</CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 flex items-center justify-center">
-        <div className="relative w-[300px] h-[250px]">
-          {bubbles.map(bubble => {
-            const position = bubblePositions[bubble.name];
-            return (
-              <div
-                key={bubble.name}
-                className="absolute rounded-full flex items-center justify-center text-white font-bold text-center -translate-x-1/2 -translate-y-1/2"
-                style={{
-                  width: `${bubble.size}px`,
-                  height: `${bubble.size}px`,
-                  top: position.top,
-                  left: position.left,
-                  zIndex: position.zIndex,
-                  backgroundColor: bubble.color, // SOLID COLOR
-                  boxShadow: `0 0 20px ${bubble.color}`, // Glow effect
+      <CardContent className="flex-1 pb-0">
+        <ChartContainer
+          config={chartConfig}
+          className="mx-auto aspect-square max-h-[250px]"
+        >
+          <PieChart>
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent hideLabel />}
+            />
+            <Pie
+              data={chartData}
+              dataKey="value"
+              nameKey="name"
+              innerRadius={60}
+              strokeWidth={8}
+            >
+              <Label
+                content={({ viewBox }) => {
+                  if (viewBox && 'cx' in viewBox && 'cy' in viewBox) {
+                    return (
+                      <text
+                        x={viewBox.cx}
+                        y={viewBox.cy}
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                      >
+                        <tspan
+                          x={viewBox.cx}
+                          y={viewBox.cy}
+                          className="fill-foreground text-3xl font-bold font-headline"
+                        >
+                          ${totalSpendings.toLocaleString()}
+                        </tspan>
+                        <tspan
+                          x={viewBox.cx}
+                          y={(viewBox.cy || 0) + 24}
+                          className="fill-muted-foreground"
+                        >
+                          Total Spent
+                        </tspan>
+                      </text>
+                    );
+                  }
                 }}
-              >
-                <div className='flex flex-col'>
-                  <span className="text-2xl font-headline drop-shadow-md">{bubble.percentage}%</span>
-                  <span className="text-xs uppercase tracking-wider opacity-80">{bubble.name}</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              />
+              {chartData.map((entry) => (
+                  <Cell key={entry.name} fill={entry.color} />
+                ))}
+            </Pie>
+          </PieChart>
+        </ChartContainer>
       </CardContent>
+      <CardFooter className="flex-col gap-2 text-sm pt-4">
+        <ChartLegend
+            content={<ChartLegendContent nameKey="name" />}
+            className="-mx-2 flex-wrap"
+          />
+      </CardFooter>
     </Card>
   );
 }
