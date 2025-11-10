@@ -30,10 +30,11 @@ export function SpendingsBubbleChart() {
     };
   });
 
+  // Explicitly defining positions for visibility and overlap
   const bubblePositions: { [key: string]: { top: string, left: string, zIndex: number } } = {
-    Essentials: { top: '50%', left: '50%', zIndex: 1 },
-    Lifestyle: { top: '30%', left: '25%', zIndex: 2 },
-    Impulse: { top: '65%', left: '20%', zIndex: 3 },
+    Essentials: { top: '50%', left: '50%', zIndex: 1 }, // Center and back
+    Lifestyle: { top: '30%', left: '25%', zIndex: 2 }, // Top-left overlap
+    Impulse: { top: '65%', left: '20%', zIndex: 3 },  // Bottom-left overlap
   };
 
   return (
@@ -49,15 +50,15 @@ export function SpendingsBubbleChart() {
             return (
               <div
                 key={bubble.name}
-                className="absolute rounded-full flex items-center justify-center text-white font-bold text-center transition-all duration-300 -translate-x-1/2 -translate-y-1/2"
+                className="absolute rounded-full flex items-center justify-center text-white font-bold text-center -translate-x-1/2 -translate-y-1/2"
                 style={{
                   width: `${bubble.size}px`,
                   height: `${bubble.size}px`,
                   top: position.top,
                   left: position.left,
                   zIndex: position.zIndex,
-                  backgroundColor: bubble.color,
-                  boxShadow: `0 0 30px -5px ${bubble.color}`,
+                  backgroundColor: bubble.color, // SOLID COLOR
+                  boxShadow: `0 0 20px ${bubble.color}`, // Glow effect
                 }}
               >
                 <div className='flex flex-col'>
