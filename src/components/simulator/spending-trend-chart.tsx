@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { format, subDays } from 'date-fns';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type ChartData = { date: string; spending: number };
 
@@ -44,15 +45,36 @@ const generateData = (days: number): ChartData[] => {
 export function SpendingTrendChart() {
   const [timeRange, setTimeRange] = React.useState('7');
   const [chartData, setChartData] = React.useState<ChartData[]>([]);
+  const [isClient, setIsClient] = React.useState(false);
 
   React.useEffect(() => {
-    const dataSets: { [key: string]: ChartData[] } = {
-      '7': generateData(7),
-      '30': generateData(30),
-      '90': generateData(90),
-    };
-    setChartData(dataSets[timeRange] || []);
-  }, [timeRange]);
+    setIsClient(true);
+  }, []);
+
+  React.useEffect(() => {
+    if (isClient) {
+      const dataSets: { [key: string]: ChartData[] } = {
+        '7': generateData(7),
+        '30': generateData(30),
+        '90': generateData(90),
+      };
+      setChartData(dataSets[timeRange] || []);
+    }
+  }, [timeRange, isClient]);
+
+  if (!isClient) {
+    return (
+      <Card className="bg-card/80 backdrop-blur-lg border-border">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="font-headline">Spending Trend</CardTitle>
+          <Skeleton className="h-10 w-[140px]" />
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-[250px] w-full" />
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="bg-card/80 backdrop-blur-lg border-border">
