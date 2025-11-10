@@ -25,7 +25,9 @@ import {
 } from '@/components/ui/select';
 import { format, subDays } from 'date-fns';
 
-const generateData = (days: number) => {
+type ChartData = { date: string; spending: number };
+
+const generateData = (days: number): ChartData[] => {
   const today = new Date();
   return Array.from({ length: days }, (_, i) => {
     const date = subDays(today, days - 1 - i);
@@ -39,16 +41,18 @@ const generateData = (days: number) => {
   }).map(d => ({ ...d, spending: Math.round(d.spending) }));
 };
 
-const dataSets: { [key: string]: { date: string; spending: number }[] } = {
-  '7': generateData(7),
-  '30': generateData(30),
-  '90': generateData(90),
-};
-
-
 export function SpendingTrendChart() {
   const [timeRange, setTimeRange] = React.useState('7');
-  const chartData = dataSets[timeRange] || dataSets['7'];
+  const [chartData, setChartData] = React.useState<ChartData[]>([]);
+
+  React.useEffect(() => {
+    const dataSets: { [key: string]: ChartData[] } = {
+      '7': generateData(7),
+      '30': generateData(30),
+      '90': generateData(90),
+    };
+    setChartData(dataSets[timeRange] || []);
+  }, [timeRange]);
 
   return (
     <Card className="bg-card/80 backdrop-blur-lg border-border">
