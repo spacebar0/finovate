@@ -59,7 +59,7 @@ export function BudgetHealth({
 
   return (
     <>
-      <Card className="flex flex-col bg-card backdrop-blur-lg border-border">
+      <Card className="flex flex-col bg-card/80 backdrop-blur-lg border-border">
         <CardHeader>
           <CardTitle className="font-headline">Budget Health</CardTitle>
           <CardDescription>{status} for this month</CardDescription>

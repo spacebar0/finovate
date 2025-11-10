@@ -63,7 +63,7 @@ export function GoalsSlider({ goals, setGoals, setShowConfetti }: GoalsSliderPro
 
   return (
     <>
-      <Card className="flex flex-col bg-card backdrop-blur-lg border-border">
+      <Card className="flex flex-col bg-card/80 backdrop-blur-lg border-border">
         <CardHeader>
           <CardTitle className="font-headline">Quick Goals</CardTitle>
         </CardHeader>
