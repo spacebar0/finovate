@@ -1,6 +1,6 @@
 'use client';
 
-import *s React from 'react';
+import * as React from 'react';
 import { Pie, PieChart, Cell } from 'recharts';
 import {
   Card,
@@ -11,7 +11,7 @@ import {
   CardFooter,
 } from '@/components/ui/card';
 import { ChartContainer } from '@/components/ui/chart';
-import { Coin } from 'lucide-react';
+import { Coins } from 'lucide-react';
 
 const TOTAL_SEGMENTS = 50;
 
@@ -79,7 +79,7 @@ export function GoalsTrackerChart() {
               transform="translate(-70, -70)"
             >
               <div className="w-full h-full flex flex-col items-center justify-center text-center">
-                <Coin className="h-8 w-8 text-yellow-400 mb-2" />
+                <Coins className="h-8 w-8 text-yellow-400 mb-2" />
                 <p className="text-5xl font-bold font-headline text-foreground">
                   {percentage}%
                 </p>

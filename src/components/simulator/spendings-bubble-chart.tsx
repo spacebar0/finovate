@@ -1,6 +1,6 @@
 'use client';
 
-import *s React from 'react';
+import * as React from 'react';
 import { Pie, PieChart, Cell } from 'recharts';
 import {
   Card,
