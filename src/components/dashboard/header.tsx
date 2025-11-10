@@ -26,7 +26,7 @@ export function DashboardHeader() {
             <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
           </Avatar>
           <div>
-            <h1 className="text-xl font-bold font-headline">{user.name}</h1>
+            <h1 className="text-xl font-bold font-headline uppercase">{user.name}</h1>
             <div className="text-sm text-muted-foreground">
               Level {user.level} • {user.xp.toLocaleString()} XP
             </div>
