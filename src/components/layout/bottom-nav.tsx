@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -17,7 +18,7 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 h-16 bg-background/70 backdrop-blur-lg border-t md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 h-16 bg-background/70 backdrop-blur-lg border-t z-50 md:hidden">
       <div className="container mx-auto h-full">
         <div className="flex justify-around items-center h-full">
           {navItems.map((item) => {
@@ -27,7 +28,7 @@ export function BottomNav() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex flex-col items-center justify-center text-muted-foreground hover:text-foreground transition-colors relative",
+                  "flex flex-col items-center justify-center text-muted-foreground hover:text-foreground transition-colors relative w-1/5",
                   isActive && "text-primary"
                 )}
               >
