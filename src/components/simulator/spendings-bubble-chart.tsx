@@ -8,7 +8,6 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  CardFooter,
 } from '@/components/ui/card';
 import {
   ChartContainer,
@@ -47,14 +46,14 @@ export function SpendingsBubbleChart() {
 
   return (
     <Card className="flex flex-col bg-card/80 backdrop-blur-lg border-border">
-      <CardHeader>
+      <CardHeader className="items-center pb-0">
         <CardTitle className="font-headline">Spendees</CardTitle>
         <CardDescription>Your spending breakdown</CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 flex items-center justify-center pb-0">
+      <CardContent className="flex-1 pb-0">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square h-full max-h-[250px]"
+          className="mx-auto aspect-square max-h-[250px]"
         >
           <PieChart>
             <Pie
@@ -62,7 +61,6 @@ export function SpendingsBubbleChart() {
               dataKey="value"
               nameKey="name"
               innerRadius={50}
-              outerRadius={80}
               strokeWidth={2}
               stroke="hsl(var(--background))"
             >
@@ -70,7 +68,7 @@ export function SpendingsBubbleChart() {
                 <Cell key={entry.name} fill={entry.color} />
               ))}
             </Pie>
-            <foreignObject
+             <foreignObject
                 x="50%"
                 y="50%"
                 textAnchor="middle"
@@ -87,14 +85,12 @@ export function SpendingsBubbleChart() {
                 </div>
               </foreignObject>
           </PieChart>
+          <ChartLegend
+            content={<ChartLegendContent nameKey="name" />}
+            className="flex items-center justify-center [&>div]:gap-4"
+          />
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col gap-2 text-sm pt-4">
-        <ChartLegend
-          content={<ChartLegendContent nameKey="name" />}
-          className="-mt-2"
-        />
-      </CardFooter>
     </Card>
   );
 }
