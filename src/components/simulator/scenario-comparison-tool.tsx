@@ -103,8 +103,8 @@ export function ScenarioComparisonTool() {
               />}
             />
             <Legend />
-            <Line dataKey="scenarioA" type="monotone" stroke={chartConfig.scenarioA.color} strokeWidth={2} dot={false} name="Scenario A" />
-            <Line dataKey="scenarioB" type="monotone" stroke={chartConfig.scenarioB.color} strokeWidth={2} dot={false} name="Scenario B" />
+            <Line dataKey="scenarioA" type="monotone" stroke="hsl(var(--chart-1))" strokeWidth={2} dot={false} name="Scenario A" />
+            <Line dataKey="scenarioB" type="monotone" stroke="hsl(var(--chart-2))" strokeWidth={2} dot={false} name="Scenario B" />
           </LineChart>
         </ChartContainer>
       </CardContent>
