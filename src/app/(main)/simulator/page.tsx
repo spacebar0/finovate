@@ -4,6 +4,9 @@ import * as React from 'react';
 import { InvestmentGrowthChart } from '@/components/simulator/investment-growth-chart';
 import { SpendingTrendChart } from '@/components/simulator/spending-trend-chart';
 import { GoalsTrackerChart } from '@/components/simulator/goals-tracker-chart';
+import { FinancialHealthTimeline } from '@/components/simulator/financial-health-timeline';
+import { SavingsHabitHeatmap } from '@/components/simulator/savings-habit-heatmap';
+import { ScenarioComparisonTool } from '@/components/simulator/scenario-comparison-tool';
 
 export default function SimulatorPage() {
   return (
@@ -14,6 +17,11 @@ export default function SimulatorPage() {
         </div>
         <SpendingTrendChart />
         <GoalsTrackerChart />
+        <FinancialHealthTimeline />
+        <SavingsHabitHeatmap />
+        <div className="lg:col-span-2">
+          <ScenarioComparisonTool />
+        </div>
       </div>
     </div>
   );
