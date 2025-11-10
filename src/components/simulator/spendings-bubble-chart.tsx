@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Label, Pie, PieChart, Cell } from 'recharts';
+import { Pie, PieChart, Cell } from 'recharts';
 import {
   Card,
   CardContent,
@@ -12,8 +12,6 @@ import {
 } from '@/components/ui/card';
 import {
   ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
   ChartLegend,
   ChartLegendContent,
 } from '@/components/ui/chart';
@@ -42,10 +40,40 @@ const chartConfig = {
   },
 };
 
+const ActiveSectorMark = ({
+  cx,
+  cy,
+  innerRadius,
+  outerRadius,
+  startAngle,
+  endAngle,
+  fill,
+}: any) => {
+  if (!cx || !cy) return null;
+  return (
+    <g>
+      <Sector
+        cx={cx}
+        cy={cy}
+        innerRadius={innerRadius}
+        outerRadius={outerRadius * 1.05}
+        startAngle={startAngle}
+        endAngle={endAngle}
+        fill={fill}
+        stroke="hsl(var(--background))"
+        strokeWidth={2}
+      />
+    </g>
+  );
+};
+
+
 export function SpendingsBubbleChart() {
+  const [activeIndex, setActiveIndex] = React.useState(0);
   const totalSpendings = React.useMemo(() => {
     return chartData.reduce((acc, curr) => acc + curr.value, 0);
   }, []);
+  const activeEntry = chartData[activeIndex];
 
   return (
     <Card className="flex flex-col bg-card/80 backdrop-blur-lg border-border">
@@ -56,53 +84,51 @@ export function SpendingsBubbleChart() {
       <CardContent className="flex-1 pb-0">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square max-h-[250px]"
+          className="mx-auto aspect-square max-h-[300px]"
         >
-          <PieChart>
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
+          <PieChart
+            onMouseEnter={(_, index) => setActiveIndex(index)}
+            onMouseLeave={() => setActiveIndex(0)}
+          >
             <Pie
               data={chartData}
               dataKey="value"
               nameKey="name"
-              innerRadius={60}
-              strokeWidth={8}
+              innerRadius={80}
+              outerRadius={100}
+              startAngle={90}
+              endAngle={450}
+              stroke="hsl(var(--background))"
+              strokeWidth={3}
+              activeIndex={activeIndex}
+              activeShape={ActiveSectorMark}
             >
-              <Label
-                content={({ viewBox }) => {
-                  if (viewBox && 'cx' in viewBox && 'cy' in viewBox) {
-                    return (
-                      <text
-                        x={viewBox.cx}
-                        y={viewBox.cy}
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                      >
-                        <tspan
-                          x={viewBox.cx}
-                          y={viewBox.cy}
-                          className="fill-foreground text-3xl font-bold font-headline"
-                        >
-                          ${totalSpendings.toLocaleString()}
-                        </tspan>
-                        <tspan
-                          x={viewBox.cx}
-                          y={(viewBox.cy || 0) + 24}
-                          className="fill-muted-foreground"
-                        >
-                          Total Spent
-                        </tspan>
-                      </text>
-                    );
-                  }
-                }}
-              />
-              {chartData.map((entry) => (
-                  <Cell key={entry.name} fill={entry.color} />
-                ))}
+              {chartData.map(entry => (
+                <Cell key={entry.name} fill={entry.color} />
+              ))}
             </Pie>
+            <foreignObject
+              x="50%"
+              y="50%"
+              textAnchor="middle"
+              dominantBaseline="middle"
+              width="160"
+              height="160"
+              transform="translate(-80, -80)"
+            >
+              <div className="w-full h-full flex flex-col items-center justify-center text-center">
+                <p className="text-muted-foreground text-sm font-medium">
+                  {activeEntry.name}
+                </p>
+                <p className="text-3xl font-bold font-headline text-foreground">
+                  ${activeEntry.value.toLocaleString()}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {Math.round((activeEntry.value / totalSpendings) * 100)}% of
+                  total
+                </p>
+              </div>
+            </foreignObject>
           </PieChart>
         </ChartContainer>
       </CardContent>
