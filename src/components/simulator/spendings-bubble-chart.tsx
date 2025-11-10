@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import { Pie, PieChart, Cell } from 'recharts';
 import {
   Card,
   CardContent,
@@ -9,40 +8,33 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import {
-  ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
-} from '@/components/ui/chart';
 
 const chartData = [
   { name: 'Essentials', value: 4332, color: 'hsl(var(--chart-1))' },
-  { name: 'Lifestyle', value: 2128, color: 'hsl(var(--chart-2))' },
-  { name: 'Impulse', value: 1140, color: 'hsl(var(--chart-3))' },
+  { name: 'Lifestyle', value: 2128, color: 'hsl(var(--chart-4))' },
+  { name: 'Impulse', value: 1140, color: 'hsl(330, 80%, 60%)' },
 ];
-
-const chartConfig = {
-  spendings: {
-    label: 'Spendings',
-  },
-  Essentials: {
-    label: 'Essentials',
-    color: 'hsl(var(--chart-1))',
-  },
-  Lifestyle: {
-    label: 'Lifestyle',
-    color: 'hsl(var(--chart-2))',
-  },
-  Impulse: {
-    label: 'Impulse',
-    color: 'hsl(var(--chart-3))',
-  },
-};
 
 export function SpendingsBubbleChart() {
   const totalSpendings = React.useMemo(() => {
     return chartData.reduce((acc, curr) => acc + curr.value, 0);
   }, []);
+
+  const bubbles = chartData.map(item => {
+    const percentage = (item.value / totalSpendings) * 100;
+    return {
+      ...item,
+      percentage: Math.round(percentage),
+      size: Math.sqrt(percentage) * 12, // Scale size for better visual balance
+    };
+  });
+
+  // Position the bubbles manually for the desired overlap effect
+  const bubblePositions: { [key: string]: { top?: string, bottom?: string, left?: string, right?: string } } = {
+    Essentials: { top: '0%', left: '15%' },
+    Lifestyle: { bottom: '5%', right: '10%' },
+    Impulse: { bottom: '20%', left: '5%' },
+  };
 
   return (
     <Card className="flex flex-col bg-card/80 backdrop-blur-lg border-border">
@@ -50,46 +42,34 @@ export function SpendingsBubbleChart() {
         <CardTitle className="font-headline">Spendees</CardTitle>
         <CardDescription>Your spending breakdown</CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 pb-0">
-        <ChartContainer
-          config={chartConfig}
-          className="mx-auto aspect-square max-h-[250px]"
-        >
-          <PieChart>
-            <Pie
-              data={chartData}
-              dataKey="value"
-              nameKey="name"
-              innerRadius={50}
-              strokeWidth={2}
-              stroke="hsl(var(--background))"
-            >
-              {chartData.map(entry => (
-                <Cell key={entry.name} fill={entry.color} />
-              ))}
-            </Pie>
-             <foreignObject
-                x="50%"
-                y="50%"
-                textAnchor="middle"
-                dominantBaseline="middle"
-                width="100"
-                height="100"
-                transform="translate(-50, -50)"
+      <CardContent className="flex-1 flex items-center justify-center">
+        <div className="relative w-full h-[250px]">
+          {bubbles.map(bubble => {
+            const position = bubblePositions[bubble.name];
+            return (
+              <div
+                key={bubble.name}
+                className="absolute rounded-full flex items-center justify-center text-white font-bold text-center transition-all duration-300"
+                style={{
+                  width: `${bubble.size}px`,
+                  height: `${bubble.size}px`,
+                  top: position.top,
+                  bottom: position.bottom,
+                  left: position.left,
+                  right: position.right,
+                  background: `radial-gradient(circle at 30% 30%, ${bubble.color}BF, ${bubble.color}80)`,
+                  boxShadow: `0 0 40px -10px ${bubble.color}`,
+                  backdropFilter: 'blur(4px)',
+                }}
               >
-                <div className="w-full h-full flex flex-col items-center justify-center text-center">
-                  <p className="text-xs text-muted-foreground">Total</p>
-                  <p className="text-2xl font-bold font-headline text-foreground">
-                    ${totalSpendings.toLocaleString()}
-                  </p>
+                <div className='flex flex-col'>
+                  <span className="text-2xl font-headline">{bubble.percentage}%</span>
+                  <span className="text-xs uppercase tracking-wider">{bubble.name}</span>
                 </div>
-              </foreignObject>
-          </PieChart>
-          <ChartLegend
-            content={<ChartLegendContent nameKey="name" />}
-            className="flex items-center justify-center [&>div]:gap-4"
-          />
-        </ChartContainer>
+              </div>
+            );
+          })}
+        </div>
       </CardContent>
     </Card>
   );
