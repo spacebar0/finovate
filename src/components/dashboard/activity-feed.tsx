@@ -1,7 +1,11 @@
+'use client';
+
+import * as React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { activityFeed } from "@/lib/data";
+import { activityFeed as initialActivityFeed } from "@/lib/data";
 import { Lightbulb, ShieldCheck, TrendingUp, Award } from "lucide-react";
+import { cn } from '@/lib/utils';
 
 const iconMap: { [key: string]: React.ElementType } = {
   Lightbulb,
@@ -10,7 +14,22 @@ const iconMap: { [key: string]: React.ElementType } = {
   Award,
 };
 
+type ActivityItem = (typeof initialActivityFeed)[0];
+
 export function ActivityFeed() {
+  const [feedItems, setFeedItems] = React.useState<ActivityItem[]>(initialActivityFeed);
+  const [dismissingId, setDismissingId] = React.useState<string | null>(null);
+
+  const handleDismiss = (id: string) => {
+    setDismissingId(id);
+    
+    // The animation duration is 500ms. After that, remove the item.
+    setTimeout(() => {
+      setFeedItems((prevItems) => prevItems.filter((item) => item.id !== id));
+      setDismissingId(null);
+    }, 500);
+  };
+
   return (
     <Card className="bg-card/80 backdrop-blur-lg border-border">
       <CardHeader>
@@ -18,13 +37,17 @@ export function ActivityFeed() {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {activityFeed.map((item) => {
+          {feedItems.map((item) => {
             const Icon = iconMap[item.icon];
             const isAchievement = item.type === "achievement";
+            const isDismissing = dismissingId === item.id;
             return (
               <div
                 key={item.id}
-                className="flex items-center gap-4 p-3 rounded-lg bg-background/40"
+                className={cn(
+                  "flex items-center gap-4 p-3 rounded-lg bg-background/40 transition-all duration-500",
+                  isDismissing && "animate-slide-out"
+                )}
               >
                 {Icon && (
                   <div className={isAchievement ? "text-accent" : "text-primary"}>
@@ -46,7 +69,7 @@ export function ActivityFeed() {
                   >
                     {item.actions[0]}
                   </Button>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" onClick={() => handleDismiss(item.id)}>
                     {item.actions[1]}
                   </Button>
                 </div>
