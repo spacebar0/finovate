@@ -28,7 +28,7 @@ export default function QuestsPage() {
   const [activeFilter, setActiveFilter] = React.useState<FilterType>('All');
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-  const [selectedGoal, setSelectedGoal] = React.useState<Goal | null>(null);
+  const [selectedGoalId, setSelectedGoalId] = React.useState<string | null>(null);
   const [completedGoalId, setCompletedGoalId] = React.useState<string | null>(null);
   const [showConfetti, setShowConfetti] = React.useState(false);
 
@@ -61,8 +61,8 @@ export default function QuestsPage() {
     });
   };
   
-  const handleDepositClick = (goal: Goal) => {
-    setSelectedGoal(goal);
+  const handleDepositClick = (goal?: Goal) => {
+    setSelectedGoalId(goal?.id || null);
     setIsDialogOpen(true);
   };
   
@@ -147,7 +147,7 @@ export default function QuestsPage() {
 
         <StreakTracker 
           goals={goals || []}
-          onSaveTodayClick={handleDepositClick}
+          onSaveTodayClick={() => handleDepositClick()}
           isLoading={areGoalsLoading}
         />
 
@@ -216,13 +216,14 @@ export default function QuestsPage() {
           )}
         </div>
       </div>
-      {selectedGoal && user && firestore && (
+      {goals && user && firestore && (
         <DepositDialog
           isOpen={isDialogOpen}
           setIsOpen={setIsDialogOpen}
-          goal={selectedGoal}
+          goals={goals}
           userId={user.uid}
           onGoalComplete={handleGoalComplete}
+          initialGoalId={selectedGoalId}
         />
       )}
     </>

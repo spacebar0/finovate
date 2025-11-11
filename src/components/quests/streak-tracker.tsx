@@ -53,20 +53,13 @@ const StreakDay = ({
 
 interface StreakTrackerProps {
   goals: Goal[];
-  onSaveTodayClick: (goal: Goal) => void;
+  onSaveTodayClick: () => void;
   isLoading: boolean;
 }
 
 export function StreakTracker({ goals, onSaveTodayClick, isLoading }: StreakTrackerProps) {
   const streakDays = ['MON', 'TUE', 'WED', 'THU', 'FRI'];
   const completedDays = 4; // Example: 4 out of 5 days completed
-
-  const handleSaveToday = () => {
-    // Logic to open deposit for the first goal
-    if (goals.length > 0) {
-      onSaveTodayClick(goals[0]);
-    }
-  }
 
   return (
     <div
@@ -88,7 +81,7 @@ export function StreakTracker({ goals, onSaveTodayClick, isLoading }: StreakTrac
         ) : (
           <Button 
             className="bg-green-500 hover:bg-green-600 text-black font-bold shadow-lg"
-            onClick={handleSaveToday}
+            onClick={onSaveTodayClick}
             disabled={goals.length === 0}
           >
             Save Today

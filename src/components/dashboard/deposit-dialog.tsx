@@ -22,6 +22,13 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import type { Goal } from '@/firebase/auth/types';
 import { useFirestore, updateDocumentNonBlocking } from '@/firebase';
@@ -31,6 +38,7 @@ const formSchema = z.object({
   amount: z.coerce
     .number()
     .positive('Deposit amount must be a positive number.'),
+  goalId: z.string({ required_error: 'Please select a goal.' }),
 });
 
 type DepositFormValues = z.infer<typeof formSchema>;
@@ -38,17 +46,19 @@ type DepositFormValues = z.infer<typeof formSchema>;
 interface DepositDialogProps {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
-  goal: Goal;
+  goals: Goal[];
   userId: string;
   onGoalComplete: (goalId: string) => void;
+  initialGoalId?: string | null;
 }
 
 export function DepositDialog({
   isOpen,
   setIsOpen,
-  goal,
+  goals,
   userId,
   onGoalComplete,
+  initialGoalId,
 }: DepositDialogProps) {
   const { toast } = useToast();
   const firestore = useFirestore();
@@ -56,29 +66,47 @@ export function DepositDialog({
   const form = useForm<DepositFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      amount: 0,
+      amount: 10,
     },
   });
 
-  const onSubmit = (values: DepositFormValues) => {
-    const newCurrentAmount = goal.currentAmount + values.amount;
-    const isCompleted = newCurrentAmount >= goal.targetAmount;
-    const finalAmount = Math.min(newCurrentAmount, goal.targetAmount);
+  React.useEffect(() => {
+    if (isOpen) {
+      form.reset({
+        amount: 10,
+        goalId: initialGoalId || undefined,
+      });
+    }
+  }, [isOpen, initialGoalId, form]);
 
-    const goalDocRef = doc(firestore, `users/${userId}/goals`, goal.id);
+  const onSubmit = (values: DepositFormValues) => {
+    const selectedGoal = goals.find(g => g.id === values.goalId);
+    if (!selectedGoal) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Selected goal not found.',
+      });
+      return;
+    }
+
+    const newCurrentAmount = selectedGoal.currentAmount + values.amount;
+    const isCompleted = newCurrentAmount >= selectedGoal.targetAmount;
+    const finalAmount = isCompleted ? selectedGoal.targetAmount : newCurrentAmount;
+
+    const goalDocRef = doc(firestore, `users/${userId}/goals`, selectedGoal.id);
     updateDocumentNonBlocking(goalDocRef, { currentAmount: finalAmount });
 
     setIsOpen(false);
-    form.reset();
 
     if (isCompleted) {
-      onGoalComplete(goal.id);
+      onGoalComplete(selectedGoal.id);
     } else {
       toast({
         title: 'Deposit Successful',
         description: `$${values.amount.toFixed(
           2
-        )} has been added to your "${goal.title}" goal.`,
+        )} has been added to your "${selectedGoal.title}" goal.`,
       });
     }
   };
@@ -87,15 +115,37 @@ export function DepositDialog({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="bg-card/80 backdrop-blur-lg border-border">
         <DialogHeader>
-          <DialogTitle className="font-headline">
-            Deposit to "{goal.title}"
-          </DialogTitle>
+          <DialogTitle className="font-headline">Make a Deposit</DialogTitle>
           <DialogDescription>
-            How much would you like to add to this goal?
+            Add funds to one of your savings goals.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="goalId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Select Goal</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choose a goal to deposit into..." />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {goals.map(goal => (
+                        <SelectItem key={goal.id} value={goal.id}>
+                          {goal.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="amount"
@@ -103,7 +153,7 @@ export function DepositDialog({
                 <FormItem>
                   <FormLabel>Deposit Amount ($)</FormLabel>
                   <FormControl>
-                    <Input type="number" step="10" {...field} />
+                    <Input type="number" step="1" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

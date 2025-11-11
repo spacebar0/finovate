@@ -21,7 +21,7 @@ export default function DashboardPage() {
   const { toast } = useToast();
   
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-  const [selectedGoal, setSelectedGoal] = React.useState<Goal | null>(null);
+  const [selectedGoalId, setSelectedGoalId] = React.useState<string | null>(null);
   const [completedGoalId, setCompletedGoalId] = React.useState<string | null>(null);
   const [carouselApi, setCarouselApi] = React.useState<any | undefined>();
 
@@ -40,7 +40,7 @@ export default function DashboardPage() {
   const { data: goals, isLoading: areGoalsLoading } = useCollection<Goal>(goalsCollectionRef);
 
   const handleDepositClick = (goal: Goal) => {
-    setSelectedGoal(goal);
+    setSelectedGoalId(goal.id);
     setIsDialogOpen(true);
   };
   
@@ -112,13 +112,14 @@ export default function DashboardPage() {
           <ActivityFeed />
         </div>
       </div>
-       {selectedGoal && user && firestore && (
+       {goals && user && firestore && (
         <DepositDialog
           isOpen={isDialogOpen}
           setIsOpen={setIsDialogOpen}
-          goal={selectedGoal}
+          goals={goals}
           userId={user.uid}
           onGoalComplete={handleGoalComplete}
+          initialGoalId={selectedGoalId}
         />
       )}
     </>
