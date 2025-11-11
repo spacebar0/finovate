@@ -105,13 +105,13 @@ export default function ProfilePage() {
   }
 
   // Hardcode XP and goals completed for demonstration
-  const xp = 10000;
+  const xp = 9999;
   const goalsCompleted = 67;
   
   const { displayName } = userData;
   const level = Math.floor(xp / 1000);
-  const xpForNextLevel = level * 1000;
-  const xpPercentage = (xp % 1000) / 1000 * 100;
+  const xpForNextLevel = (level + 1) * 1000;
+  const xpPercentage = (xp % 1000) / 10;
   
   const totalSaved = goals.reduce((acc, goal) => acc + goal.currentAmount, 0);
   // Mock efficiency for now
@@ -140,7 +140,7 @@ export default function ProfilePage() {
           <div className="space-y-1">
             <Progress value={xpPercentage} className="h-2 bg-primary/20" />
             <p className="text-xs text-muted-foreground mt-1 text-right">
-              {xp.toLocaleString()} / {(level * 1000).toLocaleString()} XP
+              {xp.toLocaleString()} / {xpForNextLevel.toLocaleString()} XP
             </p>
           </div>
         </CardContent>
