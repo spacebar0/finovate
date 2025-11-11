@@ -61,6 +61,10 @@ function ProfilePageSkeleton() {
           </div>
         </CardContent>
       </Card>
+      <div className="p-4 rounded-xl" style={{ background: 'hsl(var(--muted) / 0.5)', backdropFilter: 'blur(12px)'}}>
+        <Skeleton className="h-6 w-1/3 mb-4" />
+        <Skeleton className="h-16 w-full" />
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[...Array(3)].map((_, i) => (
           <Card key={i} style={{ background: "hsla(0, 0%, 100%, 0.05)", backdropFilter: "blur(12px)" }}>
@@ -74,14 +78,6 @@ function ProfilePageSkeleton() {
           </Card>
         ))}
       </div>
-      <Card style={{ background: "hsla(0, 0%, 100%, 0.05)", backdropFilter: "blur(12px)" }}>
-        <CardHeader>
-          <CardTitle>Achievements</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Skeleton className="h-24 w-full" />
-        </CardContent>
-      </Card>
     </div>
   );
 }
@@ -145,6 +141,21 @@ export default function ProfilePage() {
           </div>
         </CardContent>
       </Card>
+      
+      {/* Badges & Achievements Section */}
+      <div
+        className="p-4 rounded-xl space-y-4"
+        style={{
+          background: 'hsl(var(--muted) / 0.5)',
+          backdropFilter: 'blur(12px)',
+        }}
+      >
+        <h3 className="text-lg font-bold font-headline uppercase tracking-wider">Achievements</h3>
+        <div className="flex items-center justify-center h-24">
+            <p className="text-muted-foreground">Your earned badges will appear here!</p>
+        </div>
+      </div>
+
 
       {/* Financial Summary Dashboard */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -182,19 +193,8 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
       </div>
-
-      {/* Badges & Achievements Section */}
-      <Card style={{ background: "hsla(0, 0%, 100%, 0.05)", backdropFilter: "blur(12px)" }}>
-        <CardHeader>
-          <CardTitle className="font-headline">Achievements</CardTitle>
-          <CardDescription>Badges you've earned on your financial journey.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="h-24 flex items-center justify-center">
-            <p className="text-muted-foreground">Your badges will appear here. Keep completing quests!</p>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }
+
+    
