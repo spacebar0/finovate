@@ -19,6 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, doc, deleteDoc } from 'firebase/firestore';
 import type { Goal } from '@/firebase/auth/types';
+import { differenceInDays, parseISO } from 'date-fns';
 
 interface GoalsSliderProps {
   setShowConfetti: (show: boolean) => void;
@@ -99,6 +100,19 @@ export function GoalsSlider({ setShowConfetti }: GoalsSliderProps) {
                   (goal.currentAmount / goal.targetAmount) * 100;
                 const isCompleted = completedGoalId === goal.id;
 
+                const daysLeft = differenceInDays(parseISO(goal.deadline), new Date());
+                let deadlineText: string;
+
+                if (daysLeft < 0) {
+                  deadlineText = 'Overdue';
+                } else if (daysLeft > 99) {
+                  deadlineText = '99+ days left';
+                } else if (daysLeft === 1) {
+                  deadlineText = '1 day left';
+                } else {
+                  deadlineText = `${daysLeft} days left`;
+                }
+
                 return (
                   <CarouselItem
                     key={goal.id}
@@ -123,7 +137,7 @@ export function GoalsSlider({ setShowConfetti }: GoalsSliderProps) {
                             <Progress value={progress} className="h-2" />
                             <div className="flex justify-between text-xs text-muted-foreground">
                               <span>{Math.round(progress)}%</span>
-                              <span>{goal.deadline}</span>
+                              <span>{deadlineText}</span>
                             </div>
                           </div>
                           <Button
