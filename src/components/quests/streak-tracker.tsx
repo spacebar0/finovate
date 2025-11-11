@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import type { Goal } from '@/firebase/auth/types';
 import { Skeleton } from '../ui/skeleton';
 import Image from 'next/image';
+import { getDay } from 'date-fns';
 
 const StreakDay = ({
   day,
@@ -38,7 +39,10 @@ interface StreakTrackerProps {
 
 export function StreakTracker({ goals, onSaveTodayClick, isLoading }: StreakTrackerProps) {
   const streakDays = ['MON', 'TUE', 'WED', 'THU', 'FRI'];
-  const completedDays = 4; // Example: 4 out of 5 days completed
+  // getDay() returns 0 for Sunday, 1 for Monday, etc.
+  // We'll consider Sunday (0) and Saturday (6) as completing the full week (5 days) for simplicity.
+  const todayIndex = getDay(new Date());
+  const completedDays = todayIndex === 0 || todayIndex > 5 ? 5 : todayIndex;
 
   return (
     <div
