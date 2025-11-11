@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -15,6 +14,7 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Settings, Award, CheckCircle, BarChart, Edit } from 'lucide-react';
 import { animate, useInView } from 'framer-motion';
+import { EditProfileDialog } from '@/components/profile/edit-profile-dialog';
 
 function AnimatedNumber({ value, prefix = '', suffix = '' }: { value: number, prefix?: string, suffix?: string }) {
   const ref = React.useRef<HTMLSpanElement>(null);
@@ -83,10 +83,20 @@ function ProfilePageSkeleton() {
   );
 }
 
+const getInitials = (name?: string | null) => {
+  if (!name) return '';
+  const names = name.split(' ');
+  if (names.length > 1) {
+    return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
+  }
+  return name.substring(0, 2).toUpperCase();
+};
+
 export default function ProfilePage() {
   const { user } = useUser();
   const firestore = useFirestore();
   const avatarData = PlaceHolderImages.find((img) => img.id === 'user-avatar');
+  const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
 
   const userDocRef = useMemoFirebase(() => {
     if (!firestore || !user) return null;
@@ -116,7 +126,7 @@ export default function ProfilePage() {
     return <ProfilePageSkeleton />;
   }
   
-  const { xp = initialXp, displayName } = userData || {};
+  const { xp = initialXp, displayName, avatarUrl } = userData || {};
 
   // Hardcode goals completed for demonstration
   const goalsCompleted = 67;
@@ -131,87 +141,98 @@ export default function ProfilePage() {
   const totalSaved = goals.reduce((acc, goal) => acc + goal.currentAmount, 0);
   // Mock efficiency for now
   const budgetEfficiency = 85; 
+  
+  const currentAvatarUrl = avatarUrl === 'user-avatar' && avatarData ? avatarData.imageUrl : avatarUrl;
 
   return (
-    <div className="container mx-auto max-w-4xl p-4 md:p-6 space-y-8">
-      {/* User Overview Card */}
-      <Card style={{ background: "hsla(0, 0%, 100%, 0.05)", backdropFilter: "blur(12px)" }}>
-        <CardHeader>
-          <div className="flex items-center gap-4">
-            <Avatar className="h-20 w-20 border-2 border-primary/50">
-              {avatarData && <AvatarImage src={avatarData.imageUrl} alt={avatarData.description} />}
-              <AvatarFallback>{displayName?.charAt(0)}</AvatarFallback>
-            </Avatar>
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold font-headline">{displayName}</h1>
-              <p className="text-sm text-muted-foreground">Level {level}</p>
+    <>
+      <div className="container mx-auto max-w-4xl p-4 md:p-6 space-y-8">
+        {/* User Overview Card */}
+        <Card style={{ background: "hsla(0, 0%, 100%, 0.05)", backdropFilter: "blur(12px)" }}>
+          <CardHeader>
+            <div className="flex items-center gap-4">
+              <Avatar className="h-20 w-20 border-2 border-primary/50">
+                {currentAvatarUrl && <AvatarImage src={currentAvatarUrl} alt={displayName || 'User Avatar'} />}
+                <AvatarFallback className="text-2xl font-bold">{getInitials(displayName)}</AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <h1 className="text-2xl font-bold font-headline">{displayName}</h1>
+                <p className="text-sm text-muted-foreground">Level {level}</p>
+              </div>
+              <Button variant="ghost" size="icon" onClick={() => setIsEditDialogOpen(true)}>
+                <Edit className="h-5 w-5" />
+              </Button>
             </div>
-            <Button variant="ghost" size="icon">
-              <Edit className="h-5 w-5" />
-            </Button>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-1">
+              <Progress value={xpPercentage} />
+              <p className="text-xs text-muted-foreground mt-1 text-right">
+                {xp.toLocaleString()} / {(level + 1) * 1000} XP ({xpToNextLevel.toLocaleString()} to next level)
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+        
+        {/* Badges & Achievements Section */}
+        <div
+          className="p-4 rounded-xl space-y-4"
+          style={{
+            background: 'hsl(var(--muted) / 0.5)',
+            backdropFilter: 'blur(12px)',
+          }}
+        >
+          <h3 className="text-lg font-bold font-headline uppercase tracking-wider">Achievements</h3>
+          <div className="flex items-center justify-center h-24">
+              <p className="text-muted-foreground">Your earned badges will appear here!</p>
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-1">
-            <Progress value={xpPercentage} className="h-2" />
-            <p className="text-xs text-muted-foreground mt-1 text-right">
-              {xp.toLocaleString()} / {(level + 1) * 1000} XP ({xpToNextLevel.toLocaleString()} to next level)
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-      
-      {/* Badges & Achievements Section */}
-      <div
-        className="p-4 rounded-xl space-y-4"
-        style={{
-          background: 'hsl(var(--muted) / 0.5)',
-          backdropFilter: 'blur(12px)',
-        }}
-      >
-        <h3 className="text-lg font-bold font-headline uppercase tracking-wider">Achievements</h3>
-        <div className="flex items-center justify-center h-24">
-            <p className="text-muted-foreground">Your earned badges will appear here!</p>
+        </div>
+
+
+        {/* Financial Summary Dashboard */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card style={{ background: "hsla(0, 0%, 100%, 0.05)", backdropFilter: "blur(12px)" }}>
+            <CardHeader>
+               <Award className="h-8 w-8 text-accent" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold font-headline">
+                <AnimatedNumber value={totalSaved} prefix="$" />
+              </p>
+              <p className="text-sm text-muted-foreground">Total Saved</p>
+            </CardContent>
+          </Card>
+          <Card style={{ background: "hsla(0, 0%, 100%, 0.05)", backdropFilter: "blur(12px)" }}>
+            <CardHeader>
+               <CheckCircle className="h-8 w-8 text-green-400" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold font-headline">
+                 <AnimatedNumber value={goalsCompleted} />
+              </p>
+              <p className="text-sm text-muted-foreground">Goals Completed</p>
+            </CardContent>
+          </Card>
+          <Card style={{ background: "hsla(0, 0%, 100%, 0.05)", backdropFilter: "blur(12px)" }}>
+            <CardHeader>
+               <BarChart className="h-8 w-8 text-primary" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold font-headline">
+                <AnimatedNumber value={budgetEfficiency} suffix="%" />
+              </p>
+              <p className="text-sm text-muted-foreground">Budget Efficiency</p>
+            </CardContent>
+          </Card>
         </div>
       </div>
-
-
-      {/* Financial Summary Dashboard */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card style={{ background: "hsla(0, 0%, 100%, 0.05)", backdropFilter: "blur(12px)" }}>
-          <CardHeader>
-             <Award className="h-8 w-8 text-accent" />
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold font-headline">
-              <AnimatedNumber value={totalSaved} prefix="$" />
-            </p>
-            <p className="text-sm text-muted-foreground">Total Saved</p>
-          </CardContent>
-        </Card>
-        <Card style={{ background: "hsla(0, 0%, 100%, 0.05)", backdropFilter: "blur(12px)" }}>
-          <CardHeader>
-             <CheckCircle className="h-8 w-8 text-green-400" />
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold font-headline">
-               <AnimatedNumber value={goalsCompleted} />
-            </p>
-            <p className="text-sm text-muted-foreground">Goals Completed</p>
-          </CardContent>
-        </Card>
-        <Card style={{ background: "hsla(0, 0%, 100%, 0.05)", backdropFilter: "blur(12px)" }}>
-          <CardHeader>
-             <BarChart className="h-8 w-8 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold font-headline">
-              <AnimatedNumber value={budgetEfficiency} suffix="%" />
-            </p>
-            <p className="text-sm text-muted-foreground">Budget Efficiency</p>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+      {user && userData && (
+        <EditProfileDialog 
+          isOpen={isEditDialogOpen}
+          setIsOpen={setIsEditDialogOpen}
+          user={userData}
+        />
+      )}
+    </>
   );
 }
