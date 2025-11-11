@@ -9,20 +9,20 @@
     {
       "id": "onboarding-bank",
       "description": "Abstract financial graphic",
-      "imageUrl": "https://images.unsplash.com/photo-1643888193686-81c45c445b95?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxmaW5hbmNlJTIwYWJzdHJhY3R8ZW58MHx8fHwxNzYyODA1MTk2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "/images/illustration.svg",
       "imageHint": "finance abstract"
     },
     {
       "id": "onboarding-coins",
       "description": "Illustration of coins",
-      "imageUrl": "https://images.unsplash.com/photo-1641477406461-e0cc24f686c5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxjb2lucyUyMG1vbmV5fGVufDB8fHx8MTc2Mjg0NTUyMnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "/images/illustration-1.svg",
       "imageHint": "coins money"
     },
     {
       "id": "onboarding-goal",
-      "description": "Illustration of a journey or path",
-      "imageUrl": "https://images.unsplash.com/photo-1605802075479-20d89b0fed32?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxqb3VybmV5JTIwcGF0aHxlbnwwfHx8fDE3NjI4NDU1MjJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "journey path"
+      "description": "Illustration of a horse",
+      "imageUrl": "/images/illustration-2.svg",
+      "imageHint": "horse journey"
     }
   ]
 }
