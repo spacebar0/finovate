@@ -20,6 +20,8 @@ import { useAuth } from "@/firebase";
 import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface DashboardHeaderProps {
   user: User;
@@ -31,6 +33,7 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
   const xpPercentage = user.xp ? (user.xp / xpForNextLevel) * 100 : 0;
   const auth = useAuth();
   const router = useRouter();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -58,10 +61,10 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
             </div>
           </div>
         </div>
-        <DropdownMenu>
+        <DropdownMenu onOpenChange={setIsMenuOpen}>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">
-              <Settings className="h-5 w-5" />
+              <Settings className={cn("h-5 w-5 transition-transform duration-300", isMenuOpen && "rotate-90")} />
               <span className="sr-only">Settings</span>
             </Button>
           </DropdownMenuTrigger>
