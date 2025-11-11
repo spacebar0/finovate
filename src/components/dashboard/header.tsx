@@ -28,18 +28,31 @@ interface DashboardHeaderProps {
   user: User;
 }
 
+const getInitials = (name?: string | null) => {
+  if (!name) return '';
+  const names = name.split(' ');
+  if (names.length > 1) {
+    return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
+  }
+  return name.substring(0, 2).toUpperCase();
+};
+
 export function DashboardHeader({ user }: DashboardHeaderProps) {
-  const avatarData = PlaceHolderImages.find((img) => img.id === 'user-avatar');
-  const xpForNextLevel = (user.level || 1) * 1000;
-  const xpPercentage = user.xp ? (user.xp / xpForNextLevel) * 100 : 0;
   const auth = useAuth();
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const xpForNextLevel = (user.level || 1) * 1000;
+  const xpPercentage = user.xp ? (user.xp % 1000 / 1000) * 100 : 0;
+  
 
   const handleLogout = async () => {
     await signOut(auth);
     router.push('/login');
   };
+
+  const avatarData = PlaceHolderImages.find((img) => img.id === user.avatarUrl);
+  const currentAvatarUrl = avatarData ? avatarData.imageUrl : user.avatarUrl;
 
   return (
     <Card className="p-4" style={{ 
@@ -49,14 +62,14 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Avatar className="h-14 w-14 border-2 border-primary/50">
-            {avatarData && (
+            {currentAvatarUrl && (
               <AvatarImage
-                src={avatarData.imageUrl}
-                alt={avatarData.description}
-                data-ai-hint={avatarData.imageHint}
+                src={currentAvatarUrl}
+                alt={user.displayName || 'User Avatar'}
+                data-ai-hint={avatarData?.imageHint}
               />
             )}
-            <AvatarFallback>{user.displayName?.charAt(0)}</AvatarFallback>
+            <AvatarFallback className="text-xl font-bold">{getInitials(user.displayName)}</AvatarFallback>
           </Avatar>
           <div>
             <h1 className="text-xl font-bold font-headline uppercase">{user.displayName}</h1>
@@ -90,9 +103,9 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
         </DropdownMenu>
       </div>
       <div className="mt-4">
-        <Progress value={xpPercentage} className="h-2" />
+        <Progress value={xpPercentage} />
         <p className="text-xs text-muted-foreground mt-1 text-right">
-          {xpForNextLevel - (user.xp || 0)} XP to next level
+          {1000 - (user.xp ? user.xp % 1000 : 0)} XP to next level
         </p>
       </div>
        <p className="text-center text-muted-foreground text-sm mt-4 font-headline tracking-wider opacity-80">

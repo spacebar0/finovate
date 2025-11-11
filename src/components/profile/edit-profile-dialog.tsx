@@ -28,6 +28,7 @@ import { doc } from 'firebase/firestore';
 import type { User } from '@/firebase/auth/types';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Upload } from 'lucide-react';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const formSchema = z.object({
   displayName: z.string().min(2, 'Name must be at least 2 characters.'),
@@ -58,7 +59,11 @@ export function EditProfileDialog({
   const { toast } = useToast();
   const firestore = useFirestore();
   const { user: authUser } = useUser();
-  const [avatarPreview, setAvatarPreview] = React.useState<string | null>(user.avatarUrl || null);
+  
+  const originalAvatarData = PlaceHolderImages.find((img) => img.id === user.avatarUrl);
+  const originalAvatarUrl = originalAvatarData ? originalAvatarData.imageUrl : user.avatarUrl;
+
+  const [avatarPreview, setAvatarPreview] = React.useState<string | null>(originalAvatarUrl || null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const form = useForm<EditProfileFormValues>({
@@ -69,9 +74,13 @@ export function EditProfileDialog({
   });
 
   React.useEffect(() => {
-    form.reset({ displayName: user.displayName || '' });
-    setAvatarPreview(user.avatarUrl || null);
-  }, [user, form]);
+    if (isOpen) {
+      form.reset({ displayName: user.displayName || '' });
+      const currentAvatarData = PlaceHolderImages.find((img) => img.id === user.avatarUrl);
+      const currentAvatarUrl = currentAvatarData ? currentAvatarData.imageUrl : user.avatarUrl;
+      setAvatarPreview(currentAvatarUrl || null);
+    }
+  }, [user, form, isOpen]);
 
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
@@ -96,12 +105,11 @@ export function EditProfileDialog({
       displayName: values.displayName,
     };
     
-    // In a real scenario, you would upload the avatarPreview (if it's a new file) 
-    // to Firebase Storage and then save the URL here.
-    // For now, we'll just log it.
-    if (avatarPreview && avatarPreview !== user.avatarUrl) {
-        console.log("New avatar to upload:", avatarPreview);
-        // updates.avatarUrl = newUploadedUrl;
+    // If the avatar preview is a new data URL, it means a new file was selected.
+    // In a real app, you would upload this to Firebase Storage and get a URL.
+    // For this demo, we'll just save the new data URL directly to Firestore.
+    if (avatarPreview && avatarPreview.startsWith('data:image')) {
+        updates.avatarUrl = avatarPreview;
     }
 
     updateDocumentNonBlocking(userDocRef, updates);

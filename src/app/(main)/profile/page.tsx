@@ -95,7 +95,6 @@ const getInitials = (name?: string | null) => {
 export default function ProfilePage() {
   const { user } = useUser();
   const firestore = useFirestore();
-  const avatarData = PlaceHolderImages.find((img) => img.id === 'user-avatar');
   const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
 
   const userDocRef = useMemoFirebase(() => {
@@ -116,7 +115,7 @@ export default function ProfilePage() {
   
   React.useEffect(() => {
     // One-time effect to set the initial XP for the demo if it's not set in Firestore
-    if (userDocRef && userData && userData.xp === 0) {
+    if (userDocRef && userData && (userData.xp === 0 || !userData.xp)) {
       updateDocumentNonBlocking(userDocRef, { xp: initialXp, level: Math.floor(initialXp / 1000) });
     }
   }, [userDocRef, userData]);
@@ -141,8 +140,9 @@ export default function ProfilePage() {
   const totalSaved = goals.reduce((acc, goal) => acc + goal.currentAmount, 0);
   // Mock efficiency for now
   const budgetEfficiency = 85; 
-  
-  const currentAvatarUrl = avatarUrl === 'user-avatar' && avatarData ? avatarData.imageUrl : avatarUrl;
+
+  const avatarData = PlaceHolderImages.find((img) => img.id === avatarUrl);
+  const currentAvatarUrl = avatarData ? avatarData.imageUrl : avatarUrl;
 
   return (
     <>
