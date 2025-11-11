@@ -81,3 +81,118 @@ export const activityFeed: {
     actions: ["Claim", "Dismiss"],
   },
 ];
+
+
+export type Quest = {
+  id: string;
+  title: string;
+  description: string;
+  category: 'Savings' | 'Budgeting' | 'Learning' | 'Investment' | 'Community';
+  difficulty: 'Easy' | 'Medium' | 'Hard';
+  xp: number;
+  icon: string;
+  status: 'available' | 'active' | 'completed';
+  progress?: number;
+  goal?: number;
+};
+
+export const quests: Quest[] = [
+  {
+    id: 'q1',
+    title: 'Daily Savings Streak',
+    description: 'Save at least $10 every day for 5 days in a row.',
+    category: 'Savings',
+    difficulty: 'Easy',
+    xp: 50,
+    icon: 'PiggyBank',
+    status: 'active',
+    progress: 3,
+    goal: 5,
+  },
+  {
+    id: 'q2',
+    title: 'Budgeting Beginner',
+    description: 'Categorize 10 transactions using the Smart Budget Tracker.',
+    category: 'Budgeting',
+    difficulty: 'Easy',
+    xp: 75,
+    icon: 'ListChecks',
+    status: 'active',
+    progress: 4,
+    goal: 10,
+  },
+  {
+    id: 'q3',
+    title: 'Investment Explorer',
+    description: 'Simulate your first investment in the Investment Simulator.',
+    category: 'Investment',
+    difficulty: 'Medium',
+    xp: 150,
+    icon: 'TrendingUp',
+    status: 'available',
+  },
+  {
+    id: 'q4',
+    title: 'Learn About Compounding',
+    description: 'Complete the micro-lesson on how compound interest works.',
+    category: 'Learning',
+    difficulty: 'Easy',
+    xp: 50,
+    icon: 'BrainCircuit',
+    status: 'available',
+  },
+  {
+    id: 'q5',
+    title: 'No-Spend Challenge',
+    description: 'Go 3 consecutive days without any non-essential spending.',
+    category: 'Budgeting',
+    difficulty: 'Hard',
+    xp: 250,
+    icon: 'Lock',
+    status: 'available',
+  },
+  {
+    id: 'q6',
+    title: 'Weekend Warrior Savings',
+    description: 'Save $50 between Friday and Sunday.',
+    category: 'Savings',
+    difficulty: 'Medium',
+    xp: 100,
+    icon: 'Calendar',
+    status: 'available',
+  },
+  {
+    id: 'q7',
+    title: 'Group Savings Goal',
+    description: "Join a community challenge to save for a common goal.",
+    category: 'Community',
+    difficulty: 'Medium',
+    xp: 120,
+    icon: 'Users',
+    status: 'available',
+  },
+  {
+    id: 'q8',
+    title: 'Budget Master',
+    description: 'Stick to your monthly budget for 30 days straight.',
+    category: 'Budgeting',
+    difficulty: 'Hard',
+    xp: 500,
+    icon: 'Trophy',
+    status: 'completed',
+    progress: 30,
+    goal: 30
+  },
+  {
+    id: 'q9',
+    title: 'First Deposit',
+    description: 'Make your first deposit into a savings goal.',
+    category: 'Savings',
+    difficulty: 'Easy',
+    xp: 25,
+    icon: 'Landmark',
+    status: 'completed',
+    progress: 1,
+    goal: 1
+  },
+];
