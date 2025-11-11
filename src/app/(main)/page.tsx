@@ -40,13 +40,17 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-4xl p-4 md:p-6">
+    <div className="container mx-auto max-w-5xl p-4 md:p-6">
       <Confetti active={showConfetti} setActive={setShowConfetti} />
       <div className="space-y-6">
         <DashboardHeader user={userData} />
-        <div className="grid gap-6 md:grid-cols-2">
-          <BudgetHealth user={userData} />
-          <GoalsSlider setShowConfetti={setShowConfetti} />
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="lg:col-span-1">
+            <BudgetHealth user={userData} />
+          </div>
+          <div className="lg:col-span-2">
+            <GoalsSlider setShowConfetti={setShowConfetti} />
+          </div>
         </div>
         <ActivityFeed />
       </div>

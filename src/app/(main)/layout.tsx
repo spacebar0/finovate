@@ -24,11 +24,14 @@ export default function MainLayout({
   if (isUserLoading || !user) {
     return (
       <div className="flex flex-col min-h-screen">
-        <header className="p-4">
+        <header className="p-4 md:hidden">
           <Skeleton className="h-14 w-full" />
         </header>
         <main className="flex-1 container mx-auto p-4 md:p-6">
            <div className="space-y-6">
+            <div className="hidden md:block">
+              <Skeleton className="h-[150px] w-full" />
+            </div>
             <div className="grid gap-6 md:grid-cols-2">
               <Skeleton className="h-[300px] w-full" />
               <Skeleton className="h-[300px] w-full" />

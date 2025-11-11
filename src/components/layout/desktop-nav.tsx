@@ -12,8 +12,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Home, Wallet, AreaChart, Target, User, Gamepad2, PanelLeft } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Home, Wallet, AreaChart, Target, User, Gamepad2 } from "lucide-react";
 
 const navItems = [
   { href: "/", label: "Home", icon: Home },

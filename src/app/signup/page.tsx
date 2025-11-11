@@ -148,7 +148,7 @@ export default function OnboardingPage() {
           <OnboardingGraphic step={currentStep} />
         </div>
         
-        <div className="flex flex-col justify-center p-6 bg-background rounded-t-3xl border-t border-white/10 h-2/3 md:h-1/2">
+        <div className="flex flex-col justify-center p-6 bg-background rounded-t-3xl border-t border-white/10 h-2/3 md:h-1/2 lg:h-3/5">
           <div className="w-full max-w-md mx-auto flex flex-col justify-center h-full">
             <AnimatePresence mode="wait">
               <motion.div

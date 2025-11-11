@@ -48,7 +48,7 @@ export function SavingsHabitHeatmap() {
 
   React.useEffect(() => {
     setIsClient(true);
-    setHeatmapData(generateHeatmapData(90));
+    setHeatmapData(generateHeatmapData(105)); // 15 columns * 7 rows
   }, []);
 
   if (!isClient) {
@@ -70,7 +70,7 @@ export function SavingsHabitHeatmap() {
   }
   
   const today = new Date();
-  const days = Array.from({ length: 90 }, (_, i) => subDays(today, 89 - i));
+  const days = Array.from({ length: 105 }, (_, i) => subDays(today, 104 - i));
 
   const intensityColors = [
     'bg-muted/20', // Level 0 (no savings)
@@ -84,11 +84,11 @@ export function SavingsHabitHeatmap() {
     <Card className="bg-card/80 backdrop-blur-lg border-border">
       <CardHeader>
         <CardTitle className="font-headline">Savings Habit Heatmap</CardTitle>
-        <CardDescription>Your savings consistency over the last 3 months.</CardDescription>
+        <CardDescription>Your savings consistency.</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col items-center">
         <TooltipProvider>
-          <div className="grid grid-cols-15 grid-rows-7 gap-1.5 w-full">
+          <div className="grid grid-cols-15 grid-flow-col grid-rows-7 gap-1.5 w-full">
             {days.map(day => {
               const formattedDate = format(day, 'yyyy-MM-dd');
               const dayData = heatmapData.data.get(formattedDate);
@@ -96,8 +96,8 @@ export function SavingsHabitHeatmap() {
               const amount = dayData?.amount || 0;
 
               return (
-                <Tooltip key={day.toString()}>
-                  <TooltipTrigger>
+                <Tooltip key={day.toString()} delayDuration={0}>
+                  <TooltipTrigger asChild>
                     <div
                       className={`w-full aspect-square rounded-sm ${intensityColors[intensity]} ${isSameDay(day, today) ? 'ring-2 ring-accent' : ''}`}
                     />
@@ -106,14 +106,18 @@ export function SavingsHabitHeatmap() {
                     <p className="text-sm font-semibold">
                       {amount > 0 ? `$${amount.toFixed(2)} saved` : 'No savings'}
                     </p>
-                    <p className="text-xs text-muted-foreground">{format(day, 'yyyy-MM-dd')}</p>
+                    <p className="text-xs text-muted-foreground">{format(day, 'E, MMM d, yyyy')}</p>
                   </TooltipContent>
                 </Tooltip>
               );
             })}
           </div>
         </TooltipProvider>
-        <style jsx>{`.grid-cols-15 { grid-template-columns: repeat(15, minmax(0, 1fr)); }`}</style>
+        <style jsx>{`
+          .grid-cols-15 {
+             grid-template-columns: repeat(15, minmax(0, 1fr));
+          }
+        `}</style>
       </CardContent>
        <CardFooter className="flex items-center justify-between text-sm">
         <span className="text-muted-foreground">Longest Streak</span>
