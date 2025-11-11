@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -52,17 +51,6 @@ export function SavingsHabitHeatmap() {
     setHeatmapData(generateHeatmapData(90));
   }, []);
 
-  const today = new Date();
-  const days = Array.from({ length: 90 }, (_, i) => subDays(today, 89 - i));
-
-  const intensityColors = [
-    'bg-muted/20', // Level 0 (no savings)
-    'bg-primary/20', // Level 1
-    'bg-primary/40', // Level 2
-    'bg-primary/70', // Level 3
-    'bg-primary',      // Level 4
-  ];
-  
   if (!isClient) {
     return (
       <Card className="bg-card/80 backdrop-blur-lg border-border">
@@ -80,6 +68,17 @@ export function SavingsHabitHeatmap() {
       </Card>
     );
   }
+  
+  const today = new Date();
+  const days = Array.from({ length: 90 }, (_, i) => subDays(today, 89 - i));
+
+  const intensityColors = [
+    'bg-muted/20', // Level 0 (no savings)
+    'bg-primary/20', // Level 1
+    'bg-primary/40', // Level 2
+    'bg-primary/70', // Level 3
+    'bg-primary',      // Level 4
+  ];
 
   return (
     <Card className="bg-card/80 backdrop-blur-lg border-border">
@@ -107,7 +106,7 @@ export function SavingsHabitHeatmap() {
                     <p className="text-sm font-semibold">
                       {amount > 0 ? `$${amount.toFixed(2)} saved` : 'No savings'}
                     </p>
-                    <p className="text-xs text-muted-foreground">{formattedDate}</p>
+                    <p className="text-xs text-muted-foreground">{format(day, 'yyyy-MM-dd')}</p>
                   </TooltipContent>
                 </Tooltip>
               );

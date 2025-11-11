@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/chart';
 import { Slider } from '@/components/ui/slider';
 import { format } from 'date-fns';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const chartConfig = {
   value: {
@@ -51,8 +52,38 @@ const calculateFutureValue = (
 
 export function InvestmentGrowthChart() {
   const [monthlyContribution, setMonthlyContribution] = React.useState(250);
+  const [isClient, setIsClient] = React.useState(false);
+  const [chartData, setChartData] = React.useState<any[]>([]);
 
-  const chartData = calculateFutureValue(10000, monthlyContribution, 7, 10);
+  React.useEffect(() => {
+    setIsClient(true);
+  }, []);
+  
+  React.useEffect(() => {
+    if (isClient) {
+      setChartData(calculateFutureValue(10000, monthlyContribution, 7, 10));
+    }
+  }, [monthlyContribution, isClient]);
+
+  if (!isClient) {
+    return (
+      <Card className="bg-card/80 backdrop-blur-lg border-border">
+        <CardHeader>
+          <CardTitle className="font-headline">Future Value Simulator</CardTitle>
+          <CardDescription>
+            See how your investments could grow over the next 10 years.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-[250px] w-full" />
+        </CardContent>
+        <CardFooter className="flex-col items-start gap-4">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-5 w-full" />
+        </CardFooter>
+      </Card>
+    );
+  }
 
   return (
     <Card className="bg-card/80 backdrop-blur-lg border-border">
@@ -98,7 +129,7 @@ export function InvestmentGrowthChart() {
             <Tooltip
               cursor={{ stroke: 'hsl(var(--border))', strokeWidth: 2 }}
               content={<ChartTooltipContent
-                formatter={(value) => `$${value.toLocaleString()}`}
+                formatter={(value) => `$${(value as number).toLocaleString()}`}
                 labelFormatter={(label) => format(new Date(label), 'MMM yyyy')}
               />}
             />

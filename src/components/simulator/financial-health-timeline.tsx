@@ -15,7 +15,7 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart';
 import { Badge } from '@/components/ui/badge';
-import { format, subDays, addDays } from 'date-fns';
+import { format, subDays } from 'date-fns';
 import { Skeleton } from '../ui/skeleton';
 
 const chartConfig = {
