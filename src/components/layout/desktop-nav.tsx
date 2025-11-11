@@ -13,7 +13,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Home, Wallet, AreaChart, Target, User, Gamepad2 } from "lucide-react";
+import { Home, Wallet, AreaChart, Target, User } from "lucide-react";
 
 const navItems = [
   { href: "/", label: "Home", icon: Home },
@@ -34,9 +34,9 @@ export function DesktopNav() {
           <Button
             variant="outline"
             size="icon"
-            className="fixed top-4 left-4 z-50 h-12 w-12 rounded-full shadow-lg bg-background/80 backdrop-blur-lg"
+            className="fixed top-4 left-4 z-50 h-12 w-12 rounded-full shadow-lg bg-background/80 backdrop-blur-lg p-2"
           >
-            <Gamepad2 className="h-6 w-6" />
+            <Image src="/images/logo.svg" alt="Finnovate Menu" width={24} height={24} className="w-full h-full" />
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="w-[250px] bg-background/80 backdrop-blur-lg p-0">
