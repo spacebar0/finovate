@@ -126,7 +126,7 @@ export default function OnboardingPage() {
         description: "You're all set. Redirecting you to the dashboard...",
       });
 
-      // Redirect will be handled by the auth state listener
+      router.push('/');
     } catch (error: any) {
       console.error('Onboarding Error:', error);
       toast({
@@ -144,7 +144,7 @@ export default function OnboardingPage() {
   return (
     <FormProvider {...methods}>
       <div className="flex flex-col min-h-screen bg-black text-white">
-        <div className="relative flex-1 flex items-center justify-center p-4 md:p-8 min-h-[40vh] md:min-h-[50vh]">
+        <div className="relative flex-1 flex items-center justify-center p-4 md:p-8">
           <OnboardingGraphic step={currentStep} />
         </div>
         
