@@ -237,7 +237,7 @@ export default function QuestsPage() {
           </div>
           
           {completedQuests.length > 0 && (
-            <Accordion type="single" collapsible className="w-full" initialValue='item-1'>
+            <Accordion type="single" collapsible className="w-full" defaultValue='item-1'>
               <AccordionItem value="item-1" className="border-none">
                 <AccordionTrigger className="text-2xl font-bold font-headline mb-4 no-underline hover:no-underline">
                   <div className="flex items-center">
@@ -284,7 +284,7 @@ export default function QuestsPage() {
                             )}
                         </CardFooter>
                     </Card>
-                    {completedQuests.map(quest => (
+                    {completedQuests.filter(q => q.id !== levelUpQuest.id).map(quest => (
                         <QuestCard key={quest.id} quest={quest} onStartQuest={handleStartQuest} />
                     ))}
                   </div>
