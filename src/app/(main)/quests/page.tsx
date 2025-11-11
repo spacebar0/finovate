@@ -54,10 +54,19 @@ export default function QuestsPage() {
 
   const activeQuests = filteredQuests.filter(q => q.status === 'active');
   const availableQuests = filteredQuests.filter(q => q.status === 'available');
-  const completedQuests = filteredQuests.filter(q => q.status === 'completed');
+  const completedQuests = quests.filter(q => q.status === 'completed');
+  
+  const totalXpFromCompletedQuests = React.useMemo(() => {
+    return completedQuests.reduce((total, quest) => total + quest.xp, 0);
+  }, [completedQuests]);
 
-  const xpForNextLevel = (userData?.level || 1) * 1000;
-  const xpPercentage = userData?.xp ? (userData.xp / xpForNextLevel) * 100 : 0;
+  const calculatedXp = (userData?.xp || 0) + totalXpFromCompletedQuests;
+  const calculatedLevel = Math.floor(calculatedXp / 1000) + 1;
+  const xpForNextLevel = calculatedLevel * 1000;
+  const currentLevelXp = calculatedXp % 1000;
+  const xpPercentage = (currentLevelXp / 1000) * 100;
+  
+  const xpToNextLevel = 1000 - currentLevelXp;
 
   return (
     <div className="container mx-auto max-w-6xl p-4 md:p-6 space-y-8">
@@ -85,11 +94,11 @@ export default function QuestsPage() {
           ) : (
             <div className="max-w-md mx-auto">
               <div className="text-center text-sm text-muted-foreground mb-2">
-                Level {userData.level || 1} • {userData.xp?.toLocaleString() || 0} / {xpForNextLevel.toLocaleString()} XP
+                Level {calculatedLevel} • {calculatedXp.toLocaleString()} / {xpForNextLevel.toLocaleString()} XP
               </div>
-              <Progress value={xpPercentage} className="h-2 bg-primary/20" />
+              <Progress value={xpPercentage} className="h-2" />
               <p className="text-xs text-muted-foreground mt-1 text-right">
-                {xpForNextLevel - (userData.xp || 0)} XP to next level
+                {xpToNextLevel} XP to next level
               </p>
             </div>
           )}
