@@ -70,7 +70,10 @@ export function ScenarioComparisonTool() {
 
 
   return (
-    <Card className="bg-card/80 backdrop-blur-lg border-border">
+    <Card style={{ 
+      background: "hsla(0, 0%, 100%, 0.05)",
+      backdropFilter: "blur(12px)",
+    }}>
       <CardHeader>
         <CardTitle className="font-headline">Scenario Comparison Tool</CardTitle>
         <CardDescription>

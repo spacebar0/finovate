@@ -14,6 +14,8 @@ import { ChartContainer } from '@/components/ui/chart';
 import { Button } from '@/components/ui/button';
 import { AdjustBudgetDialog } from '@/components/dashboard/adjust-budget-dialog';
 import type { User } from '@/firebase/auth/types';
+import { useFirestore } from '@/firebase';
+import { Skeleton } from '../ui/skeleton';
 
 const chartConfig = {
   progress: {
@@ -40,6 +42,7 @@ const getBudgetColor = (percentage: number): string => {
 
 export function BudgetHealth({ user }: { user: User }) {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const firestore = useFirestore();
 
   const budgetState = user.budget || { spending: 0, budget: 1, savingsGoal: 0, currentSavings: 0 };
   const { spending, budget } = budgetState;
@@ -54,7 +57,10 @@ export function BudgetHealth({ user }: { user: User }) {
 
   return (
     <>
-      <Card className="flex flex-col bg-card/80 backdrop-blur-lg border-border">
+      <Card className="flex flex-col" style={{ 
+        background: "hsla(0, 0%, 100%, 0.05)",
+        backdropFilter: "blur(12px)",
+      }}>
         <CardHeader>
           <CardTitle className="font-headline">Budget Health</CardTitle>
           <CardDescription>{status} for this month</CardDescription>
@@ -111,20 +117,25 @@ export function BudgetHealth({ user }: { user: User }) {
               ${budget.toFixed(2)}
             </span>
           </div>
-          <Button
-            onClick={() => setIsDialogOpen(true)}
-            className="w-full bg-gradient-to-r from-primary to-secondary text-primary-foreground shadow-[0_4px_15px_rgba(53,37,139,0.35)] hover:shadow-lg transition-shadow"
-          >
-            Adjust Budget
-          </Button>
+          {firestore ? (
+            <Button
+              onClick={() => setIsDialogOpen(true)}
+              className="w-full bg-gradient-to-r from-primary to-secondary text-primary-foreground shadow-[0_4px_15px_rgba(53,37,139,0.35)] hover:shadow-lg transition-shadow"
+            >
+              Adjust Budget
+            </Button>
+          ) : (
+             <Skeleton className="h-10 w-full" />
+          )}
         </CardFooter>
       </Card>
-      <AdjustBudgetDialog
+      {firestore && <AdjustBudgetDialog
         isOpen={isDialogOpen}
         setIsOpen={setIsDialogOpen}
         budgetState={budgetState}
         user={user}
-      />
+        firestore={firestore}
+      />}
     </>
   );
 }

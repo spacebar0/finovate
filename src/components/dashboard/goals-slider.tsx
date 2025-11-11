@@ -73,16 +73,19 @@ export function GoalsSlider({ setShowConfetti }: GoalsSliderProps) {
   };
 
   if (isLoading) {
-    return <Card className="flex flex-col bg-card/80 backdrop-blur-lg border-border"><CardHeader><CardTitle className="font-headline">Quick Goals</CardTitle></CardHeader><CardContent className='flex items-center justify-center'><p>Loading goals...</p></CardContent></Card>
+    return <Card className="flex flex-col" style={{ background: "hsla(0, 0%, 100%, 0.05)", backdropFilter: "blur(12px)" }}><CardHeader><CardTitle className="font-headline">Quick Goals</CardTitle></CardHeader><CardContent className='flex items-center justify-center'><p>Loading goals...</p></CardContent></Card>
   }
   
   if (!goals || goals.length === 0) {
-    return <Card className="flex flex-col bg-card/80 backdrop-blur-lg border-border"><CardHeader><CardTitle className="font-headline">Quick Goals</CardTitle></CardHeader><CardContent className='flex items-center justify-center'><p>No goals set yet. Add one!</p></CardContent></Card>
+    return <Card className="flex flex-col" style={{ background: "hsla(0, 0%, 100%, 0.05)", backdropFilter: "blur(12px)" }}><CardHeader><CardTitle className="font-headline">Quick Goals</CardTitle></CardHeader><CardContent className='flex items-center justify-center'><p>No goals set yet. Add one!</p></CardContent></Card>
   }
 
   return (
     <>
-      <Card className="flex flex-col bg-card/80 backdrop-blur-lg border-border">
+      <Card className="flex flex-col" style={{ 
+        background: "hsla(0, 0%, 100%, 0.05)",
+        backdropFilter: "blur(12px)",
+      }}>
         <CardHeader>
           <CardTitle className="font-headline">Quick Goals</CardTitle>
         </CardHeader>

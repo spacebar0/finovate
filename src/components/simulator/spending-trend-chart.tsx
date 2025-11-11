@@ -64,7 +64,10 @@ export function SpendingTrendChart() {
 
   if (!isClient) {
     return (
-      <Card className="bg-card/80 backdrop-blur-lg border-border">
+      <Card style={{ 
+        background: "hsla(0, 0%, 100%, 0.05)",
+        backdropFilter: "blur(12px)",
+      }}>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="font-headline">Spending Trend</CardTitle>
           <Skeleton className="h-10 w-[140px]" />
@@ -77,7 +80,10 @@ export function SpendingTrendChart() {
   }
 
   return (
-    <Card className="bg-card/80 backdrop-blur-lg border-border">
+    <Card style={{ 
+      background: "hsla(0, 0%, 100%, 0.05)",
+      backdropFilter: "blur(12px)",
+    }}>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="font-headline">Spending Trend</CardTitle>
         <Select value={timeRange} onValueChange={setTimeRange}>

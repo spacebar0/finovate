@@ -53,7 +53,10 @@ export function SavingsHabitHeatmap() {
 
   if (!isClient) {
     return (
-      <Card className="bg-card/80 backdrop-blur-lg border-border">
+      <Card style={{ 
+        background: "hsla(0, 0%, 100%, 0.05)",
+        backdropFilter: "blur(12px)",
+      }}>
         <CardHeader>
           <CardTitle className="font-headline">Savings Habit Heatmap</CardTitle>
           <CardDescription>Your savings consistency over the last 3 months.</CardDescription>
@@ -81,7 +84,10 @@ export function SavingsHabitHeatmap() {
   ];
 
   return (
-    <Card className="bg-card/80 backdrop-blur-lg border-border">
+    <Card style={{ 
+      background: "hsla(0, 0%, 100%, 0.05)",
+      backdropFilter: "blur(12px)",
+    }}>
       <CardHeader>
         <CardTitle className="font-headline">Savings Habit Heatmap</CardTitle>
         <CardDescription>Your savings consistency.</CardDescription>

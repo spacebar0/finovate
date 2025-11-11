@@ -67,7 +67,10 @@ export function InvestmentGrowthChart() {
 
   if (!isClient) {
     return (
-      <Card className="bg-card/80 backdrop-blur-lg border-border">
+      <Card style={{ 
+        background: "hsla(0, 0%, 100%, 0.05)",
+        backdropFilter: "blur(12px)",
+      }}>
         <CardHeader>
           <CardTitle className="font-headline">Future Value Simulator</CardTitle>
           <CardDescription>
@@ -86,7 +89,10 @@ export function InvestmentGrowthChart() {
   }
 
   return (
-    <Card className="bg-card/80 backdrop-blur-lg border-border">
+    <Card style={{ 
+      background: "hsla(0, 0%, 100%, 0.05)",
+      backdropFilter: "blur(12px)",
+    }}>
       <CardHeader>
         <CardTitle className="font-headline">Future Value Simulator</CardTitle>
         <CardDescription>

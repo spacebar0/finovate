@@ -43,7 +43,10 @@ export function GoalsTrackerChart() {
   }));
 
   return (
-    <Card className="flex flex-col bg-card/80 backdrop-blur-lg border-border">
+    <Card className="flex flex-col" style={{ 
+      background: "hsla(0, 0%, 100%, 0.05)",
+      backdropFilter: "blur(12px)",
+    }}>
       <CardHeader>
         <CardTitle className="font-headline">Goals Tracker</CardTitle>
         <CardDescription>Overall progress on your goals</CardDescription>

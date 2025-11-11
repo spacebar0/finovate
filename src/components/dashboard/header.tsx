@@ -41,7 +41,10 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
   };
 
   return (
-    <Card className="p-4 bg-card/80 backdrop-blur-lg border-border">
+    <Card className="p-4" style={{ 
+      background: "hsla(0, 0%, 100%, 0.05)",
+      backdropFilter: "blur(12px)",
+    }}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Avatar className="h-14 w-14 border-2 border-primary/50">

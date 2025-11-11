@@ -87,7 +87,10 @@ export default function SignInPage() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background p-4">
-      <Card className="w-full max-w-sm bg-card/80 backdrop-blur-lg">
+      <Card className="w-full max-w-sm" style={{ 
+        background: "hsla(0, 0%, 100%, 0.05)",
+        backdropFilter: "blur(12px)",
+      }}>
         <CardHeader className="items-center text-center">
           <Gamepad2 className="h-8 w-8 text-primary mb-2" />
           <CardTitle className="font-headline text-2xl">Welcome Back</CardTitle>
