@@ -17,6 +17,7 @@ export interface User {
   joinedAt?: string;
   parentConsent?: boolean;
   budget?: Budget;
+  currency?: string;
 }
 
 export type Goal = {

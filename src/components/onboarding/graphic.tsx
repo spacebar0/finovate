@@ -6,6 +6,8 @@ import { PersonGraphic } from './graphics/person';
 import { ShieldGraphic } from './graphics/shield';
 import { PiggyBankGraphic } from './graphics/piggy-bank';
 import { RocketGraphic } from './graphics/rocket';
+import { CurrencyGraphic } from './graphics/currency';
+import { PaymentGraphic } from './graphics/payment';
 import { CheckGraphic } from './graphics/check';
 
 interface OnboardingGraphicProps {
@@ -18,6 +20,8 @@ const graphics = [
   ShieldGraphic,
   PiggyBankGraphic,
   RocketGraphic,
+  CurrencyGraphic,
+  PaymentGraphic,
   CheckGraphic
 ];
 

@@ -16,6 +16,8 @@ import { NameStep } from '@/components/onboarding/steps/name-step';
 import { EmailStep } from '@/components/onboarding/steps/email-step';
 import { BudgetStep } from '@/components/onboarding/steps/budget-step';
 import { GoalStep } from '@/components/onboarding/steps/goal-step';
+import { CurrencyStep } from '@/components/onboarding/steps/currency-step';
+import { PaymentLinkStep } from '@/components/onboarding/steps/payment-link-step';
 import { FinalStep } from '@/components/onboarding/steps/final-step';
 
 import { useToast } from '@/hooks/use-toast';
@@ -30,6 +32,7 @@ const onboardingSchema = z.object({
   goalTitle: z.string().min(3, 'Goal title must be at least 3 characters.'),
   goalTarget: z.coerce.number().positive('Target must be a positive number.'),
   goalDeadline: z.date({ required_error: 'Please select a deadline.' }),
+  currency: z.string({ required_error: 'Please select a currency.' }),
 });
 
 export type OnboardingData = z.infer<typeof onboardingSchema>;
@@ -40,6 +43,8 @@ const steps = [
   { id: 'email', component: EmailStep },
   { id: 'budget', component: BudgetStep },
   { id: 'goal', component: GoalStep },
+  { id: 'currency', component: CurrencyStep },
+  { id: 'payment', component: PaymentLinkStep },
   { id: 'final', component: FinalStep },
 ];
 
@@ -61,6 +66,7 @@ export default function OnboardingPage() {
       spending: 500,
       goalTitle: '',
       goalTarget: 1000,
+      currency: 'USD'
     },
   });
 
@@ -71,6 +77,8 @@ export default function OnboardingPage() {
       ['email', 'password'], // Email
       ['budget', 'spending'], // Budget
       ['goalTitle', 'goalTarget', 'goalDeadline'], // Goal
+      ['currency'], // Currency
+      [], // Payment Link
     ];
 
     const isValid = await methods.trigger(fieldsToValidate[currentStep]);
@@ -99,6 +107,7 @@ export default function OnboardingPage() {
         theme: 'dark',
         joinedAt: new Date().toISOString(),
         parentConsent: false,
+        currency: data.currency,
         budget: {
           budget: data.budget,
           spending: data.spending,
