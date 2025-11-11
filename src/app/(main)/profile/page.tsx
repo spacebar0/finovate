@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import Image from 'next/image';
 import { useUser, useDoc, useFirestore, useMemoFirebase, useCollection, updateDocumentNonBlocking } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
 import type { User, Goal } from '@/firebase/auth/types';
@@ -16,6 +17,7 @@ import { animate, useInView } from 'framer-motion';
 import { EditProfileDialog } from '@/components/profile/edit-profile-dialog';
 import { badges, Badge as BadgeType } from '@/lib/badges';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
 
 function AnimatedNumber({ value, prefix = '', suffix = '' }: { value: number, prefix?: string, suffix?: string }) {
   const ref = React.useRef<HTMLSpanElement>(null);
@@ -69,9 +71,9 @@ function ProfilePageSkeleton() {
       </Card>
       <div className="p-4 rounded-xl" style={{ background: 'hsl(var(--muted) / 0.5)', backdropFilter: 'blur(12px)'}}>
         <Skeleton className="h-6 w-1/3 mb-4" />
-        <div className="grid grid-cols-5 gap-4">
-            {[...Array(5)].map((_, i) => (
-                <Skeleton key={i} className="h-16 w-16" />
+        <div className="flex items-center justify-center gap-4">
+            {[...Array(6)].map((_, i) => (
+                <Skeleton key={i} className="h-16 w-16 rounded-full" />
             ))}
         </div>
       </div>
@@ -101,6 +103,32 @@ const getInitials = (name?: string | null) => {
   return name.substring(0, 2).toUpperCase();
 };
 
+const BadgeDisplay = ({ badge, isLast }: { badge: BadgeType, isLast?: boolean }) => (
+    <div className="flex items-center">
+        <TooltipProvider>
+            <Tooltip delayDuration={0}>
+                <TooltipTrigger asChild>
+                    <div className="relative flex flex-col items-center">
+                        <div 
+                            className="absolute -inset-0.5 rounded-full blur-sm opacity-75"
+                            style={{ background: `linear-gradient(to right, ${badge.color}80, #a855f780)`}}
+                        ></div>
+                        <div className="relative w-16 h-16 rounded-full bg-gray-800/80 flex items-center justify-center p-2">
+                           <Image src={badge.icon} alt={badge.name} width={48} height={48} className="object-contain" />
+                        </div>
+                    </div>
+                </TooltipTrigger>
+                <TooltipContent style={{ background: badge.color, color: 'black', border: 'none' }}>
+                    <p className="font-bold">{badge.name}</p>
+                    <p className="text-xs">{badge.description}</p>
+                </TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
+        {!isLast && <div className="w-4 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 mx-[-4px] opacity-50" />}
+    </div>
+);
+
+
 export default function ProfilePage() {
   const { user } = useUser();
   const firestore = useFirestore();
@@ -122,7 +150,7 @@ export default function ProfilePage() {
   const initialXp = 9000;
   
   React.useEffect(() => {
-    if (userDocRef && userData && (userData.xp === 0 || !userData.xp)) {
+    if (userDocRef && userData && !userData.xp) {
       updateDocumentNonBlocking(userDocRef, { xp: initialXp, level: Math.floor(initialXp / 1000) });
     }
   }, [userDocRef, userData]);
@@ -149,7 +177,7 @@ export default function ProfilePage() {
   const avatarData = PlaceHolderImages.find((img) => img.id === avatarUrl);
   const currentAvatarUrl = avatarData ? avatarData.imageUrl : avatarUrl;
 
-  const earnedBadges = badges; // For now, assume all badges are earned
+  const earnedBadges = badges; 
 
   return (
     <>
@@ -192,34 +220,15 @@ export default function ProfilePage() {
         >
           <h3 className="text-lg font-bold font-headline uppercase tracking-wider">Achievements</h3>
             {earnedBadges.length > 0 ? (
-                <TooltipProvider>
-                    <div className="grid grid-cols-3 sm:grid-cols-6 gap-4">
-                        {earnedBadges.map((badge) => {
-                            const Icon = badge.icon;
-                            return (
-                                <Tooltip key={badge.id} delayDuration={0}>
-                                    <TooltipTrigger asChild>
-                                        <div className="aspect-square flex items-center justify-center bg-background/40 rounded-lg p-3 transition-transform hover:scale-110"
-                                            style={{
-                                                border: `1px solid ${badge.color}30`,
-                                                boxShadow: `0 0 12px ${badge.color}20`,
-                                            }}>
-                                            <Icon className="h-8 w-8" style={{ color: badge.color }} />
-                                        </div>
-                                    </TooltipTrigger>
-                                    <TooltipContent style={{
-                                        background: badge.color,
-                                        color: 'black',
-                                        border: 'none',
-                                    }}>
-                                        <p className="font-bold">{badge.name}</p>
-                                        <p className="text-xs">{badge.description}</p>
-                                    </TooltipContent>
-                                </Tooltip>
-                            );
-                        })}
-                    </div>
-                </TooltipProvider>
+                <div className="flex items-center justify-center">
+                    {earnedBadges.map((badge, index) => (
+                        <BadgeDisplay 
+                            key={badge.id} 
+                            badge={badge} 
+                            isLast={index === earnedBadges.length - 1} 
+                        />
+                    ))}
+                </div>
             ) : (
                 <div className="flex items-center justify-center h-24">
                     <p className="text-muted-foreground">Your earned badges will appear here!</p>
