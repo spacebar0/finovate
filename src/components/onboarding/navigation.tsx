@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface OnboardingNavigationProps {
+  children: React.ReactNode;
   onNext?: () => void;
   onPrev?: () => void;
   isSubmitting?: boolean;
@@ -12,6 +13,7 @@ interface OnboardingNavigationProps {
 }
 
 export function OnboardingNavigation({
+  children,
   onNext,
   onPrev,
   isSubmitting = false,
@@ -35,7 +37,7 @@ export function OnboardingNavigation({
       </div>
 
       <div className="flex-1 flex justify-center">
-        {/* Progress dots could go here */}
+        {children}
       </div>
 
       <div>

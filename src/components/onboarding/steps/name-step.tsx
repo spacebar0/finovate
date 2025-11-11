@@ -6,14 +6,17 @@ import { OnboardingNavigation } from '../navigation';
 import { FormField, FormItem, FormControl, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import type { OnboardingData } from '@/app/signup/page';
+import { OnboardingProgress } from '../progress';
 
 
 interface NameStepProps {
   goNext: () => void;
   goPrev: () => void;
+  currentStep: number;
+  totalSteps: number;
 }
 
-export function NameStep({ goNext, goPrev }: NameStepProps) {
+export function NameStep({ goNext, goPrev, currentStep, totalSteps }: NameStepProps) {
   const { control, formState: { errors } } = useFormContext<OnboardingData>();
 
   return (
@@ -40,7 +43,9 @@ export function NameStep({ goNext, goPrev }: NameStepProps) {
         onNext={goNext}
         onPrev={goPrev}
         canGoNext={!errors.displayName}
-      />
+      >
+        <OnboardingProgress currentStep={currentStep} totalSteps={totalSteps} />
+      </OnboardingNavigation>
     </>
   );
 }

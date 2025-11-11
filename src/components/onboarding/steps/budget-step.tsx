@@ -6,13 +6,16 @@ import { OnboardingNavigation } from '../navigation';
 import { FormField, FormItem, FormControl, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import type { OnboardingData } from '@/app/signup/page';
+import { OnboardingProgress } from '../progress';
 
 interface BudgetStepProps {
   goNext: () => void;
   goPrev: () => void;
+  currentStep: number;
+  totalSteps: number;
 }
 
-export function BudgetStep({ goNext, goPrev }: BudgetStepProps) {
+export function BudgetStep({ goNext, goPrev, currentStep, totalSteps }: BudgetStepProps) {
   const { control, formState: { errors } } = useFormContext<OnboardingData>();
 
   return (
@@ -54,7 +57,9 @@ export function BudgetStep({ goNext, goPrev }: BudgetStepProps) {
         onNext={goNext}
         onPrev={goPrev}
         canGoNext={!errors.budget && !errors.spending}
-      />
+      >
+        <OnboardingProgress currentStep={currentStep} totalSteps={totalSteps} />
+      </OnboardingNavigation>
     </>
   );
 }

@@ -6,13 +6,16 @@ import { OnboardingNavigation } from '../navigation';
 import { FormField, FormItem, FormControl, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import type { OnboardingData } from '@/app/signup/page';
+import { OnboardingProgress } from '../progress';
 
 interface EmailStepProps {
   goNext: () => void;
   goPrev: () => void;
+  currentStep: number;
+  totalSteps: number;
 }
 
-export function EmailStep({ goNext, goPrev }: EmailStepProps) {
+export function EmailStep({ goNext, goPrev, currentStep, totalSteps }: EmailStepProps) {
   const { control, formState: { errors } } = useFormContext<OnboardingData>();
 
   return (
@@ -54,7 +57,9 @@ export function EmailStep({ goNext, goPrev }: EmailStepProps) {
         onNext={goNext}
         onPrev={goPrev}
         canGoNext={!errors.email && !errors.password}
-      />
+      >
+        <OnboardingProgress currentStep={currentStep} totalSteps={totalSteps} />
+      </OnboardingNavigation>
     </>
   );
 }

@@ -2,13 +2,16 @@
 
 import { StepLayout } from './base-step';
 import { OnboardingNavigation } from '../navigation';
+import { OnboardingProgress } from '../progress';
 
 interface FinalStepProps {
   onSubmit: () => void;
   isSubmitting: boolean;
+  currentStep: number;
+  totalSteps: number;
 }
 
-export function FinalStep({ onSubmit, isSubmitting }: FinalStepProps) {
+export function FinalStep({ onSubmit, isSubmitting, currentStep, totalSteps }: FinalStepProps) {
   return (
     <>
       <StepLayout
@@ -17,7 +20,9 @@ export function FinalStep({ onSubmit, isSubmitting }: FinalStepProps) {
       >
         <div />
       </StepLayout>
-      <OnboardingNavigation onNext={onSubmit} isSubmitting={isSubmitting} isFinalStep />
+      <OnboardingNavigation onNext={onSubmit} isSubmitting={isSubmitting} isFinalStep>
+         <OnboardingProgress currentStep={currentStep} totalSteps={totalSteps} />
+      </OnboardingNavigation>
     </>
   );
 }

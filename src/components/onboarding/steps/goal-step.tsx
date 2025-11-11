@@ -12,13 +12,16 @@ import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import type { OnboardingData } from '@/app/signup/page';
+import { OnboardingProgress } from '../progress';
 
 interface GoalStepProps {
   goNext: () => void;
   goPrev: () => void;
+  currentStep: number;
+  totalSteps: number;
 }
 
-export function GoalStep({ goNext, goPrev }: GoalStepProps) {
+export function GoalStep({ goNext, goPrev, currentStep, totalSteps }: GoalStepProps) {
   const { control, formState: { errors } } = useFormContext<OnboardingData>();
 
   return (
@@ -101,7 +104,9 @@ export function GoalStep({ goNext, goPrev }: GoalStepProps) {
         onNext={goNext}
         onPrev={goPrev}
         canGoNext={!errors.goalTitle && !errors.goalTarget && !errors.goalDeadline}
-      />
+      >
+        <OnboardingProgress currentStep={currentStep} totalSteps={totalSteps} />
+      </OnboardingNavigation>
     </>
   );
 }
