@@ -68,7 +68,7 @@ export default function QuestsPage() {
   
   const handleGoalComplete = (goalId: string) => {
     const goal = goals?.find(g => g.id === goalId);
-    if (goal && user) {
+    if (goal && user && firestore) {
       toast({
         title: 'Goal Completed!',
         description: `You've reached your goal for "${goal.title}"!`,
@@ -200,9 +200,11 @@ export default function QuestsPage() {
           {completedQuests.length > 0 && (
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="completed-quests" className="border-none">
-                <AccordionTrigger className="text-2xl font-bold font-headline mb-4 flex items-center no-underline hover:no-underline">
-                  <Trophy className="mr-3 h-6 w-6 text-accent" />
-                  Completed Quests
+                <AccordionTrigger className="text-2xl font-bold font-headline mb-4 no-underline hover:no-underline">
+                  <div className="flex items-center">
+                    <Trophy className="mr-3 h-6 w-6 text-accent" />
+                    <span>Completed Quests</span>
+                  </div>
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
