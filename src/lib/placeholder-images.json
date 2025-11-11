@@ -9,19 +9,19 @@
     {
       "id": "onboarding-bank",
       "description": "Abstract financial graphic",
-      "imageUrl": "/images/illustration.svg",
+      "imageUrl": "/images/3.svg",
       "imageHint": "finance abstract"
     },
     {
       "id": "onboarding-coins",
       "description": "Illustration of coins",
-      "imageUrl": "/images/illustration-1.svg",
+      "imageUrl": "/images/1.svg",
       "imageHint": "coins money"
     },
     {
       "id": "onboarding-goal",
       "description": "Illustration of a horse",
-      "imageUrl": "/images/illustration-2.svg",
+      "imageUrl": "/images/2.svg",
       "imageHint": "horse journey"
     }
   ]

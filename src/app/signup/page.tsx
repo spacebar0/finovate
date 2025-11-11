@@ -143,9 +143,14 @@ export default function OnboardingPage() {
 
   return (
     <FormProvider {...methods}>
-      <div className="flex flex-col min-h-screen bg-black text-white p-6 relative overflow-hidden">
-        <OnboardingGraphic step={currentStep} />
-        <div className="flex-1 flex flex-col justify-end z-10">
+      <div className="flex flex-col min-h-screen bg-black text-white relative overflow-hidden">
+        {/* Top half for the graphic */}
+        <div className="relative flex-1 flex items-center justify-center">
+          <OnboardingGraphic step={currentStep} />
+        </div>
+
+        {/* Bottom half for the content */}
+        <div className="flex-1 flex flex-col justify-center p-6">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentStep}
@@ -153,7 +158,7 @@ export default function OnboardingPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
-              className="flex-1 flex flex-col justify-center"
+              className="w-full"
             >
               <CurrentStepComponent
                 goNext={goNext}
