@@ -13,6 +13,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Confetti } from '@/components/ui/confetti';
 import { CreateWalletDialog } from '@/components/wallets/create-wallet-dialog';
 import { WalletsOverview } from '@/components/wallets/wallets-overview';
+import { FinnyInsights } from '@/components/wallets/finny-insights';
+import { MoodReflection } from '@/components/wallets/mood-reflection';
 
 export default function WalletsPage() {
   const { user } = useUser();
@@ -82,27 +84,35 @@ export default function WalletsPage() {
 
       <WalletsOverview user={userData} isLoading={isLoading} />
 
-      {isLoading ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-[250px] w-full" />)}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-8">
+          {isLoading ? (
+            <div className="grid gap-4 md:grid-cols-2">
+              {[...Array(2)].map((_, i) => <Skeleton key={i} className="h-[250px] w-full" />)}
+            </div>
+          ) : goals && goals.length > 0 ? (
+            <div className="grid gap-6 md:grid-cols-2">
+              {goals.map(goal => (
+                <WalletCard 
+                  key={goal.id} 
+                  goal={goal}
+                  onDeposit={() => handleOpenDialog(goal, 'deposit')}
+                  onWithdraw={() => handleOpenDialog(goal, 'withdraw')}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-20 rounded-lg" style={{ background: "hsla(0, 0%, 100%, 0.05)", backdropFilter: "blur(12px)" }}>
+                <h3 className="text-xl font-semibold">No Wallets Found</h3>
+                <p className="text-muted-foreground mt-2">Click "Create Wallet" to start your first savings goal.</p>
+            </div>
+          )}
         </div>
-      ) : goals && goals.length > 0 ? (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {goals.map(goal => (
-            <WalletCard 
-              key={goal.id} 
-              goal={goal}
-              onDeposit={() => handleOpenDialog(goal, 'deposit')}
-              onWithdraw={() => handleOpenDialog(goal, 'withdraw')}
-            />
-          ))}
+        <div className="space-y-8">
+          <MoodReflection />
+          <FinnyInsights userId={user?.uid} />
         </div>
-      ) : (
-        <div className="text-center py-20 rounded-lg" style={{ background: "hsla(0, 0%, 100%, 0.05)", backdropFilter: "blur(12px)" }}>
-            <h3 className="text-xl font-semibold">No Wallets Found</h3>
-            <p className="text-muted-foreground mt-2">Click "Create Wallet" to start your first savings goal.</p>
-        </div>
-      )}
+      </div>
     </div>
     
     <Confetti active={showConfetti} setActive={setShowConfetti} />

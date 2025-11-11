@@ -4,7 +4,7 @@ import type { Goal } from '@/firebase/auth/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { PiggyBank, ArrowUpCircle, ArrowDownCircle } from 'lucide-react';
+import { PiggyBank, ArrowUpCircle, ArrowDownCircle, Laptop, Plane, Ticket } from 'lucide-react';
 import { differenceInDays, parseISO } from 'date-fns';
 
 interface WalletCardProps {
@@ -15,14 +15,17 @@ interface WalletCardProps {
 
 const iconMap: { [key: string]: React.ElementType } = {
   default: PiggyBank,
+  tech: Laptop,
+  travel: Plane,
+  event: Ticket,
 };
 
 // A simple function to get an icon based on goal title
 const getIconForGoal = (title: string): React.ElementType => {
     const lowerTitle = title.toLowerCase();
-    if (lowerTitle.includes('pc') || lowerTitle.includes('laptop') || lowerTitle.includes('tech')) return PiggyBank;
-    if (lowerTitle.includes('vacation') || lowerTitle.includes('trip')) return PiggyBank;
-    if (lowerTitle.includes('ticket') || lowerTitle.includes('concert')) return PiggyBank;
+    if (lowerTitle.includes('pc') || lowerTitle.includes('laptop') || lowerTitle.includes('phone')) return iconMap.tech;
+    if (lowerTitle.includes('vacation') || lowerTitle.includes('trip') || lowerTitle.includes('travel')) return iconMap.travel;
+    if (lowerTitle.includes('ticket') || lowerTitle.includes('concert') || lowerTitle.includes('event')) return iconMap.event;
     return iconMap.default;
 }
 
