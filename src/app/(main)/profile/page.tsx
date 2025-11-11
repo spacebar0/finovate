@@ -59,7 +59,7 @@ function ProfilePageSkeleton() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2">
+          <div className="space-y-1">
              <div className="space-y-1">
               <Progress value={0} className="h-2" />
               <p className="text-xs text-muted-foreground text-right">
@@ -186,11 +186,10 @@ export default function ProfilePage() {
           <CardHeader>
             <div className="flex items-center gap-4">
               <Avatar className="h-20 w-20 border-2 border-primary/50">
-                {currentAvatarUrl ? (
+                {currentAvatarUrl && currentAvatarUrl.startsWith('http') ? (
                   <AvatarImage src={currentAvatarUrl} alt={displayName || 'User Avatar'} />
-                ) : (
-                  <AvatarFallback className="text-2xl font-bold">{getInitials(displayName)}</AvatarFallback>
-                )}
+                ) : null}
+                <AvatarFallback className="text-2xl font-bold">{getInitials(displayName)}</AvatarFallback>
               </Avatar>
               <div className="flex-1">
                 <h1 className="text-2xl font-bold font-headline">{displayName}</h1>
