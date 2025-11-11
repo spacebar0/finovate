@@ -1,18 +1,17 @@
 'use client';
 
 import * as React from 'react';
-import Image from 'next/image';
 import { useUser, useDoc, useFirestore, useMemoFirebase, useCollection, updateDocumentNonBlocking } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
 import type { User, Goal } from '@/firebase/auth/types';
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Settings, Award, CheckCircle, BarChart, Edit } from 'lucide-react';
+import { Award, CheckCircle, BarChart, Edit } from 'lucide-react';
 import { animate, useInView } from 'framer-motion';
 import { EditProfileDialog } from '@/components/profile/edit-profile-dialog';
 
@@ -64,7 +63,11 @@ function ProfilePageSkeleton() {
       </Card>
       <div className="p-4 rounded-xl" style={{ background: 'hsl(var(--muted) / 0.5)', backdropFilter: 'blur(12px)'}}>
         <Skeleton className="h-6 w-1/3 mb-4" />
-        <Skeleton className="h-16 w-full" />
+        <div className="grid grid-cols-5 gap-4">
+            {[...Array(5)].map((_, i) => (
+                <Skeleton key={i} className="h-16 w-16" />
+            ))}
+        </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[...Array(3)].map((_, i) => (
@@ -110,11 +113,9 @@ export default function ProfilePage() {
   const { data: userData, isLoading: isUserLoading } = useDoc<User>(userDocRef);
   const { data: goals, isLoading: areGoalsLoading } = useCollection<Goal>(goalsCollectionRef);
 
-  // Set initial hardcoded XP here. This will be overwritten by Firestore data once loaded.
   const initialXp = 9000;
   
   React.useEffect(() => {
-    // One-time effect to set the initial XP for the demo if it's not set in Firestore
     if (userDocRef && userData && (userData.xp === 0 || !userData.xp)) {
       updateDocumentNonBlocking(userDocRef, { xp: initialXp, level: Math.floor(initialXp / 1000) });
     }
@@ -127,7 +128,6 @@ export default function ProfilePage() {
   
   const { xp = initialXp, displayName, avatarUrl } = userData || {};
 
-  // Hardcode goals completed for demonstration
   const goalsCompleted = 67;
   
   const level = Math.floor(xp / 1000);
@@ -138,7 +138,6 @@ export default function ProfilePage() {
   const xpToNextLevel = xpNeededForNextLevel - xpInCurrentLevel;
 
   const totalSaved = goals.reduce((acc, goal) => acc + goal.currentAmount, 0);
-  // Mock efficiency for now
   const budgetEfficiency = 85; 
 
   const avatarData = PlaceHolderImages.find((img) => img.id === avatarUrl);
@@ -147,7 +146,6 @@ export default function ProfilePage() {
   return (
     <>
       <div className="container mx-auto max-w-4xl p-4 md:p-6 space-y-8">
-        {/* User Overview Card */}
         <Card style={{ background: "hsla(0, 0%, 100%, 0.05)", backdropFilter: "blur(12px)" }}>
           <CardHeader>
             <div className="flex items-center gap-4">
@@ -174,7 +172,6 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
         
-        {/* Badges & Achievements Section */}
         <div
           className="p-4 rounded-xl space-y-4"
           style={{
@@ -188,8 +185,6 @@ export default function ProfilePage() {
           </div>
         </div>
 
-
-        {/* Financial Summary Dashboard */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card style={{ background: "hsla(0, 0%, 100%, 0.05)", backdropFilter: "blur(12px)" }}>
             <CardHeader>

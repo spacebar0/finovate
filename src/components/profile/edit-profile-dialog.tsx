@@ -63,7 +63,7 @@ export function EditProfileDialog({
   const originalAvatarData = PlaceHolderImages.find((img) => img.id === user.avatarUrl);
   const originalAvatarUrl = originalAvatarData ? originalAvatarData.imageUrl : user.avatarUrl;
 
-  const [avatarPreview, setAvatarPreview] = React.useState<string | null>(originalAvatarUrl || null);
+  const [avatarPreview, setAvatarPreview] = React.useState<string | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const form = useForm<EditProfileFormValues>({
@@ -105,11 +105,10 @@ export function EditProfileDialog({
       displayName: values.displayName,
     };
     
-    // If the avatar preview is a new data URL, it means a new file was selected.
-    // In a real app, you would upload this to Firebase Storage and get a URL.
-    // For this demo, we'll just save the new data URL directly to Firestore.
     if (avatarPreview && avatarPreview.startsWith('data:image')) {
         updates.avatarUrl = avatarPreview;
+    } else if (avatarPreview === null) {
+      updates.avatarUrl = ''; // Handle removal of picture
     }
 
     updateDocumentNonBlocking(userDocRef, updates);
@@ -133,9 +132,7 @@ export function EditProfileDialog({
         <div className="flex justify-center">
             <div className="relative group">
                 <Avatar className="h-32 w-32 border-4 border-primary/50 cursor-pointer" onClick={handleAvatarClick}>
-                    {avatarPreview ? (
-                        <AvatarImage src={avatarPreview} alt={user.displayName || 'User Avatar'} />
-                    ) : null}
+                    {avatarPreview && <AvatarImage src={avatarPreview} alt={user.displayName || 'User Avatar'} />}
                     <AvatarFallback className="text-4xl font-bold">
                         {getInitials(user.displayName)}
                     </AvatarFallback>
