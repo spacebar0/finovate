@@ -11,6 +11,7 @@ import { doc, getFirestore } from 'firebase/firestore';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 
 import { OnboardingGraphic } from '@/components/onboarding/graphic';
+import { OnboardingHeader } from '@/components/onboarding/header';
 import { WelcomeStep } from '@/components/onboarding/steps/welcome-step';
 import { NameStep } from '@/components/onboarding/steps/name-step';
 import { EmailStep } from '@/components/onboarding/steps/email-step';
@@ -143,31 +144,43 @@ export default function OnboardingPage() {
 
   return (
     <FormProvider {...methods}>
-      <div className="flex flex-col min-h-screen bg-black text-white relative overflow-hidden">
-        {/* Top half for the graphic */}
-        <div className="relative flex-1 flex items-center justify-center">
-          <OnboardingGraphic step={currentStep} />
-        </div>
+      <div className="flex flex-col h-screen bg-black text-white">
+        <OnboardingHeader currentStep={currentStep} totalSteps={steps.length} />
+        
+        {/* Main content area */}
+        <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+          {/* Graphic Section (Top half on mobile, left half on desktop) */}
+          <div className="relative flex-1 flex items-center justify-center p-4 md:p-8">
+            <OnboardingGraphic step={currentStep} />
+          </div>
 
-        {/* Bottom half for the content */}
-        <div className="flex-1 flex flex-col justify-center p-6">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentStep}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className="w-full"
-            >
-              <CurrentStepComponent
-                goNext={goNext}
-                goPrev={goPrev}
-                onSubmit={methods.handleSubmit(onSubmit)}
-                isSubmitting={isSubmitting}
-              />
-            </motion.div>
-          </AnimatePresence>
+          {/* Separator for desktop */}
+          <div className="hidden md:flex items-center">
+            <div className="w-px h-3/4 bg-white/10" />
+          </div>
+          
+          {/* Content Section (Bottom half on mobile, right half on desktop) */}
+          <div className="flex-1 flex flex-col justify-center p-6 overflow-y-auto">
+            <div className="w-full max-w-md mx-auto">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentStep}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-full"
+                >
+                  <CurrentStepComponent
+                    goNext={goNext}
+                    goPrev={goPrev}
+                    onSubmit={methods.handleSubmit(onSubmit)}
+                    isSubmitting={isSubmitting}
+                  />
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </div>
         </div>
       </div>
     </FormProvider>
