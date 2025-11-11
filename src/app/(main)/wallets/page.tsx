@@ -3,8 +3,8 @@
 import * as React from 'react';
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
-import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
-import { collection } from "firebase/firestore";
+import { useUser, useFirestore, useCollection, useMemoFirebase, useDoc } from "@/firebase";
+import { collection, doc } from "firebase/firestore";
 import type { User, Goal } from '@/firebase/auth/types';
 import { WalletCard } from '@/components/wallets/wallet-card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -12,6 +12,7 @@ import { DepositDialog } from '@/components/dashboard/deposit-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { Confetti } from '@/components/ui/confetti';
 import { CreateWalletDialog } from '@/components/wallets/create-wallet-dialog';
+import { WalletsOverview } from '@/components/wallets/wallets-overview';
 
 export default function WalletsPage() {
   const { user } = useUser();
@@ -24,11 +25,17 @@ export default function WalletsPage() {
   const [selectedGoal, setSelectedGoal] = React.useState<Goal | null>(null);
   const [showConfetti, setShowConfetti] = React.useState(false);
 
+  const userDocRef = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return doc(firestore, 'users', user.uid);
+  }, [firestore, user]);
+
   const goalsCollectionRef = useMemoFirebase(() => {
     if (!firestore || !user) return null;
     return collection(firestore, `users/${user.uid}/goals`);
   }, [firestore, user]);
 
+  const { data: userData, isLoading: isUserLoading } = useDoc<User>(userDocRef);
   const { data: goals, isLoading: areGoalsLoading } = useCollection<Goal>(goalsCollectionRef);
 
   const totalBalance = React.useMemo(() => {
@@ -54,11 +61,13 @@ export default function WalletsPage() {
       // We can add it here if needed.
     }
   };
+  
+  const isLoading = areGoalsLoading || isUserLoading;
 
   return (
     <>
     <div className="container mx-auto max-w-6xl p-4 md:p-6 space-y-8">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
         <div>
           <h1 className="text-3xl md:text-4xl font-bold font-headline">Your Wallets</h1>
           <p className="text-muted-foreground">
@@ -71,7 +80,9 @@ export default function WalletsPage() {
         </Button>
       </div>
 
-      {areGoalsLoading ? (
+      <WalletsOverview user={userData} isLoading={isLoading} />
+
+      {isLoading ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-[250px] w-full" />)}
         </div>
