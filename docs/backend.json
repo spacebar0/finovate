@@ -1,0 +1,691 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user profile within the Finnovate application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user entity."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "The user's display name."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address.",
+          "format": "email"
+        },
+        "avatarUrl": {
+          "type": "string",
+          "description": "URL of the user's avatar image.",
+          "format": "uri"
+        },
+        "xp": {
+          "type": "number",
+          "description": "The user's experience points."
+        },
+        "level": {
+          "type": "number",
+          "description": "The user's current level."
+        },
+        "theme": {
+          "type": "string",
+          "description": "The user's selected theme."
+        },
+        "joinedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the user joined the application.",
+          "format": "date-time"
+        },
+        "parentConsent": {
+          "type": "boolean",
+          "description": "Indicates whether parental consent has been given (if required)."
+        }
+      },
+      "required": [
+        "id",
+        "displayName",
+        "email",
+        "joinedAt"
+      ]
+    },
+    "Transaction": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Transaction",
+      "type": "object",
+      "description": "Represents a financial transaction for a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the transaction."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Transaction)"
+        },
+        "amount": {
+          "type": "number",
+          "description": "The amount of the transaction."
+        },
+        "merchant": {
+          "type": "string",
+          "description": "The merchant associated with the transaction."
+        },
+        "category": {
+          "type": "string",
+          "description": "The category of the transaction (e.g., Food, Transport)."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "The timestamp of the transaction.",
+          "format": "date-time"
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of transaction (debit or credit)."
+        },
+        "source": {
+          "type": "string",
+          "description": "The source of the transaction (manual or sync)."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "amount",
+        "merchant",
+        "category",
+        "timestamp",
+        "type",
+        "source"
+      ]
+    },
+    "Goal": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Goal",
+      "type": "object",
+      "description": "Represents a savings goal for a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the goal."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Goal)"
+        },
+        "title": {
+          "type": "string",
+          "description": "The title of the savings goal."
+        },
+        "targetAmount": {
+          "type": "number",
+          "description": "The target amount for the savings goal."
+        },
+        "currentAmount": {
+          "type": "number",
+          "description": "The current amount saved towards the goal."
+        },
+        "deadline": {
+          "type": "string",
+          "description": "The deadline for achieving the savings goal.",
+          "format": "date-time"
+        },
+        "isLinked": {
+          "type": "boolean",
+          "description": "Indicates whether the goal is linked to a real transfer."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "The timestamp indicating when the goal was created.",
+          "format": "date-time"
+        },
+        "visualColor": {
+          "type": "string",
+          "description": "The visual color associated with the goal."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "title",
+        "targetAmount",
+        "currentAmount",
+        "deadline",
+        "isLinked",
+        "createdAt",
+        "visualColor"
+      ]
+    },
+    "Wallet": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Wallet",
+      "type": "object",
+      "description": "Represents a virtual wallet for a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the wallet."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Wallet)"
+        },
+        "balance": {
+          "type": "number",
+          "description": "The balance of the wallet."
+        },
+        "goalId": {
+          "type": "string",
+          "description": "Reference to Goal. (Relationship: Wallet 1:1 Goal (optional))"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "balance"
+      ]
+    },
+    "Quest": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Quest",
+      "type": "object",
+      "description": "Represents a quest assigned to a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the quest."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Quest)"
+        },
+        "questRef": {
+          "type": "string",
+          "description": "Reference to QuestTemplate. (Relationship: Quest 1:1 QuestTemplate)"
+        },
+        "status": {
+          "type": "string",
+          "description": "The status of the quest (e.g., active, completed)."
+        },
+        "progress": {
+          "type": "number",
+          "description": "The progress of the quest."
+        },
+        "claimedReward": {
+          "type": "boolean",
+          "description": "Indicates whether the reward for the quest has been claimed."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "questRef",
+        "status",
+        "progress",
+        "claimedReward"
+      ]
+    },
+    "QuestTemplate": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "QuestTemplate",
+      "type": "object",
+      "description": "Represents a template for a quest.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the quest template."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the quest template."
+        },
+        "description": {
+          "type": "string",
+          "description": "The description of the quest template."
+        },
+        "reward": {
+          "type": "number",
+          "description": "The reward for completing the quest."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "reward"
+      ]
+    },
+    "Badge": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Badge",
+      "type": "object",
+      "description": "Represents a badge definition.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the badge."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the badge."
+        },
+        "description": {
+          "type": "string",
+          "description": "The description of the badge."
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "The URL of the badge image.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "imageUrl"
+      ]
+    },
+    "LeaderboardEntry": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "LeaderboardEntry",
+      "type": "object",
+      "description": "Represents an entry in a leaderboard.",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: Leaderboard 1:N User)"
+        },
+        "period": {
+          "type": "string",
+          "description": "The period for the leaderboard (e.g., weekly, monthly)."
+        },
+        "score": {
+          "type": "number",
+          "description": "The score of the user in the leaderboard."
+        }
+      },
+      "required": [
+        "userId",
+        "period",
+        "score"
+      ]
+    },
+    "Challenge": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Challenge",
+      "type": "object",
+      "description": "Represents a community challenge.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the challenge."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the challenge."
+        },
+        "description": {
+          "type": "string",
+          "description": "The description of the challenge."
+        },
+        "startDate": {
+          "type": "string",
+          "description": "The start date of the challenge.",
+          "format": "date-time"
+        },
+        "endDate": {
+          "type": "string",
+          "description": "The end date of the challenge.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "startDate",
+        "endDate"
+      ]
+    },
+    "SimulatorPosition": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SimulatorPosition",
+      "type": "object",
+      "description": "Represents a position in the investment simulator.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the simulator position."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N SimulatorPosition)"
+        },
+        "ticker": {
+          "type": "string",
+          "description": "The ticker symbol of the asset."
+        },
+        "quantity": {
+          "type": "number",
+          "description": "The quantity of the asset held."
+        },
+        "purchasePrice": {
+          "type": "number",
+          "description": "The purchase price of the asset."
+        },
+        "purchaseDate": {
+          "type": "string",
+          "description": "The date the asset was purchased.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "ticker",
+        "quantity",
+        "purchasePrice",
+        "purchaseDate"
+      ]
+    },
+    "MoodEntry": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "MoodEntry",
+      "type": "object",
+      "description": "Represents a mood entry logged by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the mood entry."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N MoodEntry)"
+        },
+        "mood": {
+          "type": "string",
+          "description": "The mood of the user (e.g., happy, sad)."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "The timestamp of the mood entry.",
+          "format": "date-time"
+        },
+        "note": {
+          "type": "string",
+          "description": "An optional note associated with the mood entry."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "mood",
+        "timestamp"
+      ]
+    },
+    "NudgeLog": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "NudgeLog",
+      "type": "object",
+      "description": "Represents a log of nudges sent to a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the nudge log entry."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N NudgeLog)"
+        },
+        "nudgeType": {
+          "type": "string",
+          "description": "The type of nudge sent (e.g., budget rebalance)."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "The timestamp when the nudge was sent.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "nudgeType",
+        "timestamp"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profile information. The 'userId' parameter is the Firebase Auth UID, ensuring secure data access based on authentication.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user, matching the Firebase Auth UID."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/transactions/{transactionId}",
+        "definition": {
+          "entityName": "Transaction",
+          "schema": {
+            "$ref": "#/backend/entities/Transaction"
+          },
+          "description": "Stores transaction history for a specific user. Includes the 'userId' field to ensure data integrity and easy filtering. 'userId' is implicitly used for authorization.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user, matching the Firebase Auth UID."
+            },
+            {
+              "name": "transactionId",
+              "description": "The unique identifier for the transaction."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/goals/{goalId}",
+        "definition": {
+          "entityName": "Goal",
+          "schema": {
+            "$ref": "#/backend/entities/Goal"
+          },
+          "description": "Stores savings goals for a specific user. Includes the 'userId' field to ensure data integrity and easy filtering. 'userId' is implicitly used for authorization.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user, matching the Firebase Auth UID."
+            },
+            {
+              "name": "goalId",
+              "description": "The unique identifier for the goal."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/wallets/{walletId}",
+        "definition": {
+          "entityName": "Wallet",
+          "schema": {
+            "$ref": "#/backend/entities/Wallet"
+          },
+          "description": "Stores virtual wallets for a specific user. Includes the 'userId' field to ensure data integrity and easy filtering. 'userId' is implicitly used for authorization.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user, matching the Firebase Auth UID."
+            },
+            {
+              "name": "walletId",
+              "description": "The unique identifier for the wallet."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/quests/{questId}",
+        "definition": {
+          "entityName": "Quest",
+          "schema": {
+            "$ref": "#/backend/entities/Quest"
+          },
+          "description": "Stores quest progress for a specific user. Includes the 'userId' field to ensure data integrity and easy filtering. 'userId' is implicitly used for authorization.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user, matching the Firebase Auth UID."
+            },
+            {
+              "name": "questId",
+              "description": "The unique identifier for the quest."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/quests/{questTemplateId}",
+        "definition": {
+          "entityName": "QuestTemplate",
+          "schema": {
+            "$ref": "#/backend/entities/QuestTemplate"
+          },
+          "description": "Stores quest templates available to all users.",
+          "params": [
+            {
+              "name": "questTemplateId",
+              "description": "The unique identifier for the quest template."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/badges/{badgeId}",
+        "definition": {
+          "entityName": "Badge",
+          "schema": {
+            "$ref": "#/backend/entities/Badge"
+          },
+          "description": "Stores badge definitions available to all users.",
+          "params": [
+            {
+              "name": "badgeId",
+              "description": "The unique identifier for the badge."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/leaderboards/{period}",
+        "definition": {
+          "entityName": "LeaderboardEntry",
+          "schema": {
+            "$ref": "#/backend/entities/LeaderboardEntry"
+          },
+          "description": "Stores leaderboard entries, period is weekly/monthly/overall.",
+          "params": [
+            {
+              "name": "period",
+              "description": "The period for the leaderboard (e.g., weekly, monthly)."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/community/{challengeId}",
+        "definition": {
+          "entityName": "Challenge",
+          "schema": {
+            "$ref": "#/backend/entities/Challenge"
+          },
+          "description": "Stores community challenges available to all users.",
+          "params": [
+            {
+              "name": "challengeId",
+              "description": "The unique identifier for the challenge."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/simulatorPositions/{simulatorPositionId}",
+        "definition": {
+          "entityName": "SimulatorPosition",
+          "schema": {
+            "$ref": "#/backend/entities/SimulatorPosition"
+          },
+          "description": "Stores investment simulator positions for a specific user. Includes the 'userId' field to ensure data integrity and easy filtering. 'userId' is implicitly used for authorization.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user, matching the Firebase Auth UID."
+            },
+            {
+              "name": "simulatorPositionId",
+              "description": "The unique identifier for the simulator position."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/moodEntries/{moodEntryId}",
+        "definition": {
+          "entityName": "MoodEntry",
+          "schema": {
+            "$ref": "#/backend/entities/MoodEntry"
+          },
+          "description": "Stores mood entries for a specific user. Includes the 'userId' field to ensure data integrity and easy filtering. 'userId' is implicitly used for authorization.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user, matching the Firebase Auth UID."
+            },
+            {
+              "name": "moodEntryId",
+              "description": "The unique identifier for the mood entry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/nudgeLogs/{userId}",
+        "definition": {
+          "entityName": "NudgeLog",
+          "schema": {
+            "$ref": "#/backend/entities/NudgeLog"
+          },
+          "description": "Logs nudges sent to a user. Includes the 'userId' field to ensure data integrity and easy filtering. 'userId' is implicitly used for authorization.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user, matching the Firebase Auth UID."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "Based on the user's request to connect everything user-wise and the provided data entities, the recommended Firestore structure focuses on nesting data under user documents to ensure data locality and simplified security rules. This approach aligns with the principle of path-based ownership and enables efficient querying of user-specific data.\n\n**Authorization Independence:**\nAll subcollections under `/users/{userId}` inherit authorization from the user document itself, eliminating the need for `get()` calls in security rules. The `userId` field in each subcollection document explicitly links the data to the user, making authorization independent of parent document content. For collaborative data, the membership map approach is not required, as ownership is implicit via the path.\n\n**QAPs (Rules are not Filters):**\n*   The structure supports secure `list` operations for user-specific data because all documents within a subcollection share the same security context (the user's ID). This allows rules to validate that `request.auth.uid == userId` without needing to filter based on document content.\n*   Public data such as `QuestTemplate`, `Badge`, and `Challenge` is segregated into separate collections, allowing for different security rules (e.g., read access for all users). Leaderboard entries do not contain any private user data and are handled separately.\n\nThis structure promotes clarity, security, and efficient data retrieval, while adhering to the core design principles and strategy mandates."
+  }
+}

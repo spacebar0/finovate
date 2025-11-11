@@ -1,0 +1,219 @@
+/**
+ * @file Firestore Security Rules
+ * @description This ruleset enforces a strict user-ownership model for most data,
+ *              nesting user-specific data under the /users/{userId} path. Public or
+ *              shared data is stored in separate top-level collections.
+ *
+ * Data Structure:
+ * - /users/{userId}: Stores user profile information. Only the user can read/write their profile.
+ * - /users/{userId}/{subcollection}/{docId}: User-owned data. Only the user can read/write.
+ *   Examples: transactions, goals, wallets, quests, simulatorPositions, moodEntries, nudgeLogs.
+ * - /quests/{questTemplateId}: Public quest templates, readable by everyone.
+ * - /badges/{badgeId}: Public badge definitions, readable by everyone.
+ * - /leaderboards/{period}: Public leaderboard entries, readable by everyone.
+ * - /community/{challengeId}: Public community challenges, readable by everyone.
+ *
+ * Key Security Decisions:
+ * - User-owned data is strictly controlled via the /users/{userId} path.
+ * - No user listing is allowed to prevent data leakage.
+ * - Public collections are readable by everyone.
+ * - All writes require authentication.
+ *
+ * Denormalization for Authorization:
+ * - The 'userId' is embedded in documents within the `/users/{userId}` tree.
+ *   This allows rules to quickly verify ownership without additional reads.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Controls access to user profile data.
+     * @path /users/{userId}
+     * @allow (create) User with matching UID can create their profile.
+     * @allow (get, update, delete) User with matching UID can read/write their profile.
+     * @deny (create, get, update, delete) Any other user cannot access this data.
+     * @principle Enforces strict user ownership for profile management.
+     */
+    match /users/{userId} {
+      function isOwner(userId) {
+        return request.auth != null && request.auth.uid == userId;
+      }
+
+      function isExistingOwner(userId) {
+          return isOwner(userId) && resource != null;
+      }
+
+      allow get: if isOwner(userId);
+      allow list: if false; // Prevent listing all users
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+
+      /**
+       * @description Controls access to user transaction data.
+       * @path /users/{userId}/transactions/{transactionId}
+       * @allow (create, get, update, delete, list) User with matching UID can access their transactions.
+       * @deny Any other user cannot access this data.
+       * @principle Enforces strict user ownership for transaction data.
+       */
+      match /users/{userId}/transactions/{transactionId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId);
+        allow update: if isExistingOwner(userId);
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description Controls access to user goal data.
+       * @path /users/{userId}/goals/{goalId}
+       * @allow (create, get, update, delete, list) User with matching UID can access their goals.
+       * @deny Any other user cannot access this data.
+       * @principle Enforces strict user ownership for goal data.
+       */
+      match /users/{userId}/goals/{goalId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId);
+        allow update: if isExistingOwner(userId);
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description Controls access to user wallet data.
+       * @path /users/{userId}/wallets/{walletId}
+       * @allow (create, get, update, delete, list) User with matching UID can access their wallets.
+       * @deny Any other user cannot access this data.
+       * @principle Enforces strict user ownership for wallet data.
+       */
+      match /users/{userId}/wallets/{walletId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId);
+        allow update: if isExistingOwner(userId);
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description Controls access to user quest data.
+       * @path /users/{userId}/quests/{questId}
+       * @allow (create, get, update, delete, list) User with matching UID can access their quests.
+       * @deny Any other user cannot access this data.
+       * @principle Enforces strict user ownership for quest data.
+       */
+      match /users/{userId}/quests/{questId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId);
+        allow update: if isExistingOwner(userId);
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description Controls access to user simulator position data.
+       * @path /users/{userId}/simulatorPositions/{simulatorPositionId}
+       * @allow (create, get, update, delete, list) User with matching UID can access their simulator positions.
+       * @deny Any other user cannot access this data.
+       * @principle Enforces strict user ownership for simulator position data.
+       */
+      match /users/{userId}/simulatorPositions/{simulatorPositionId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId);
+        allow update: if isExistingOwner(userId);
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description Controls access to user mood entry data.
+       * @path /users/{userId}/moodEntries/{moodEntryId}
+       * @allow (create, get, update, delete, list) User with matching UID can access their mood entries.
+       * @deny Any other user cannot access this data.
+       * @principle Enforces strict user ownership for mood entry data.
+       */
+      match /users/{userId}/moodEntries/{moodEntryId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId);
+        allow update: if isExistingOwner(userId);
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description Controls access to user nudge log data.
+       * @path /nudgeLogs/{userId}
+       * @allow (create, get, update, delete, list) User with matching UID can access their nudge logs.
+       * @deny Any other user cannot access this data.
+       * @principle Enforces strict user ownership for nudge log data.
+       */
+      match /nudgeLogs/{userId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId);
+        allow update: if isExistingOwner(userId);
+        allow delete: if isExistingOwner(userId);
+      }
+    }
+
+    /**
+     * @description Allows public read access to quest template data.  Write access is denied.
+     * @path /quests/{questTemplateId}
+     * @allow (get, list) Any user can read quest templates.
+     * @deny (create, update, delete) No user can write quest templates.
+     * @principle Grants public read access to quest templates.
+     */
+    match /quests/{questTemplateId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    /**
+     * @description Allows public read access to badge data. Write access is denied.
+     * @path /badges/{badgeId}
+     * @allow (get, list) Any user can read badges.
+     * @deny (create, update, delete) No user can write badges.
+     * @principle Grants public read access to badge definitions.
+     */
+    match /badges/{badgeId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    /**
+     * @description Allows public read access to leaderboard data.  Write access is denied.
+     * @path /leaderboards/{period}
+     * @allow (get, list) Any user can read leaderboard entries.
+     * @deny (create, update, delete) No user can write leaderboard entries.
+     * @principle Grants public read access to leaderboard entries.
+     */
+    match /leaderboards/{period} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    /**
+     * @description Allows public read access to community challenge data. Write access is denied.
+     * @path /community/{challengeId}
+     * @allow (get, list) Any user can read challenges.
+     * @deny (create, update, delete) No user can write challenges.
+     * @principle Grants public read access to community challenges.
+     */
+    match /community/{challengeId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+  }
+}
