@@ -27,7 +27,7 @@ import { useFirestore, updateDocumentNonBlocking, useUser } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { User } from '@/firebase/auth/types';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { Upload } from 'lucide-react';
+import { Upload, Trash2 } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const formSchema = z.object({
@@ -60,9 +60,6 @@ export function EditProfileDialog({
   const firestore = useFirestore();
   const { user: authUser } = useUser();
   
-  const originalAvatarData = PlaceHolderImages.find((img) => img.id === user.avatarUrl);
-  const originalAvatarUrl = originalAvatarData ? originalAvatarData.imageUrl : user.avatarUrl;
-
   const [avatarPreview, setAvatarPreview] = React.useState<string | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -97,6 +94,19 @@ export function EditProfileDialog({
     }
   };
 
+  const handleRemovePicture = () => {
+    if (!authUser) return;
+    const userDocRef = doc(firestore, 'users', authUser.uid);
+
+    updateDocumentNonBlocking(userDocRef, { avatarUrl: '' });
+    setAvatarPreview(null);
+    setIsOpen(false);
+    toast({
+      title: 'Profile Picture Removed',
+      description: 'Your avatar has been reset to your initials.',
+    });
+  }
+
   const onSubmit = (values: EditProfileFormValues) => {
     if (!authUser) return;
     const userDocRef = doc(firestore, 'users', authUser.uid);
@@ -105,10 +115,9 @@ export function EditProfileDialog({
       displayName: values.displayName,
     };
     
+    // Only include avatarUrl in the update if it has been changed to a new data URL
     if (avatarPreview && avatarPreview.startsWith('data:image')) {
         updates.avatarUrl = avatarPreview;
-    } else if (avatarPreview === null) {
-      updates.avatarUrl = ''; // Handle removal of picture
     }
 
     updateDocumentNonBlocking(userDocRef, updates);
@@ -132,9 +141,11 @@ export function EditProfileDialog({
         <div className="flex justify-center">
             <div className="relative group">
                 <Avatar className="h-32 w-32 border-4 border-primary/50 cursor-pointer" onClick={handleAvatarClick}>
-                    {avatarPreview && <AvatarImage src={avatarPreview} alt={user.displayName || 'User Avatar'} />}
+                    {avatarPreview ? (
+                      <AvatarImage src={avatarPreview} alt={user.displayName || 'User Avatar'} />
+                    ) : null}
                     <AvatarFallback className="text-4xl font-bold">
-                        {getInitials(user.displayName)}
+                        {getInitials(form.getValues('displayName'))}
                     </AvatarFallback>
                 </Avatar>
                 <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" onClick={handleAvatarClick}>
@@ -165,7 +176,11 @@ export function EditProfileDialog({
               )}
             />
             
-            <DialogFooter>
+            <DialogFooter className='gap-2 sm:justify-between'>
+              <Button type="button" variant="destructive" onClick={handleRemovePicture}>
+                <Trash2 className="mr-2 h-4 w-4" />
+                Remove Picture
+              </Button>
               <Button type="submit">Save Changes</Button>
             </DialogFooter>
           </form>

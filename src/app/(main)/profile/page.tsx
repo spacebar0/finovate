@@ -1,8 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { useUser, useDoc, useFirestore, useMemoFirebase, useCollection, updateDocumentNonBlocking } from '@/firebase';
-import { collection, doc } from 'firebase/firestore';
+import { useUser, useDoc, useFirestore, useMemoFirebase, useCollection } from '@/firebase';
+import { collection, doc, updateDoc } from 'firebase/firestore';
 import type { User, Goal } from '@/firebase/auth/types';
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -117,7 +117,7 @@ export default function ProfilePage() {
   
   React.useEffect(() => {
     if (userDocRef && userData && (userData.xp === 0 || !userData.xp)) {
-      updateDocumentNonBlocking(userDocRef, { xp: initialXp, level: Math.floor(initialXp / 1000) });
+      updateDoc(userDocRef, { xp: initialXp, level: Math.floor(initialXp / 1000) });
     }
   }, [userDocRef, userData]);
 
@@ -150,7 +150,9 @@ export default function ProfilePage() {
           <CardHeader>
             <div className="flex items-center gap-4">
               <Avatar className="h-20 w-20 border-2 border-primary/50">
-                {currentAvatarUrl && <AvatarImage src={currentAvatarUrl} alt={displayName || 'User Avatar'} />}
+                {currentAvatarUrl ? (
+                  <AvatarImage src={currentAvatarUrl} alt={displayName || 'User Avatar'} />
+                ) : null}
                 <AvatarFallback className="text-2xl font-bold">{getInitials(displayName)}</AvatarFallback>
               </Avatar>
               <div className="flex-1">
@@ -165,7 +167,7 @@ export default function ProfilePage() {
           <CardContent>
             <div className="space-y-1">
               <Progress value={xpPercentage} />
-              <p className="text-xs text-muted-foreground mt-1 text-right">
+              <p className="text-xs text-muted-foreground text-right">
                 {xp.toLocaleString()} / {(level + 1) * 1000} XP ({xpToNextLevel.toLocaleString()} to next level)
               </p>
             </div>
