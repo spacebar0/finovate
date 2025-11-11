@@ -32,7 +32,7 @@ export function NameStep({ goNext, goPrev, currentStep, totalSteps }: NameStepPr
             <FormItem>
               <FormLabel className="sr-only">Display Name</FormLabel>
               <FormControl>
-                <Input placeholder="Enter your display name..." {...field} className="bg-white/10 border-white/20 h-14 text-center text-2xl font-bold" />
+                <Input placeholder="Enter your display name..." {...field} className="bg-white/10 border-white/20 h-14 text-center text-xl md:text-2xl font-bold" />
               </FormControl>
               <FormMessage className="text-center pt-2"/>
             </FormItem>

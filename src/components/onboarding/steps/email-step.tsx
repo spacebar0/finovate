@@ -32,7 +32,7 @@ export function EmailStep({ goNext, goPrev, currentStep, totalSteps }: EmailStep
               <FormItem>
                 <FormLabel className="text-white/80">Email Address</FormLabel>
                 <FormControl>
-                  <Input placeholder="you@example.com" {...field} className="bg-white/10 border-white/20 h-12 text-lg" />
+                  <Input placeholder="you@example.com" {...field} className="bg-white/10 border-white/20 h-12 text-base md:text-lg" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -45,7 +45,7 @@ export function EmailStep({ goNext, goPrev, currentStep, totalSteps }: EmailStep
               <FormItem>
                 <FormLabel className="text-white/80">Password (min. 6 characters)</FormLabel>
                 <FormControl>
-                  <Input type="password" placeholder="••••••••" {...field} className="bg-white/10 border-white/20 h-12 text-lg" />
+                  <Input type="password" placeholder="••••••••" {...field} className="bg-white/10 border-white/20 h-12 text-base md:text-lg" />
                 </FormControl>
                 <FormMessage />
               </FormItem>

@@ -38,7 +38,7 @@ export function GoalStep({ goNext, goPrev, currentStep, totalSteps }: GoalStepPr
               <FormItem>
                 <FormLabel className="text-white/80">Goal Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="e.g., New Gaming PC" {...field} className="bg-white/10 border-white/20 h-12 text-lg" />
+                  <Input placeholder="e.g., New Gaming PC" {...field} className="bg-white/10 border-white/20 h-12 text-base md:text-lg" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -51,7 +51,7 @@ export function GoalStep({ goNext, goPrev, currentStep, totalSteps }: GoalStepPr
               <FormItem>
                 <FormLabel className="text-white/80">How much do you need to save?</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="$1,500" {...field} className="bg-white/10 border-white/20 h-12 text-lg" />
+                  <Input type="number" placeholder="$1,500" {...field} className="bg-white/10 border-white/20 h-12 text-base md:text-lg" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -69,7 +69,7 @@ export function GoalStep({ goNext, goPrev, currentStep, totalSteps }: GoalStepPr
                       <Button
                         variant={"outline"}
                         className={cn(
-                          "w-full h-12 pl-3 text-left font-normal text-lg bg-white/10 border-white/20 hover:bg-white/20 hover:text-white",
+                          "w-full h-12 pl-3 text-left font-normal text-base md:text-lg bg-white/10 border-white/20 hover:bg-white/20 hover:text-white",
                           !field.value && "text-muted-foreground"
                         )}
                       >

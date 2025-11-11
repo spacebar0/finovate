@@ -32,7 +32,7 @@ export function BudgetStep({ goNext, goPrev, currentStep, totalSteps }: BudgetSt
               <FormItem>
                 <FormLabel className="text-white/80">What's your total monthly budget?</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="$1,000" {...field} className="bg-white/10 border-white/20 h-12 text-lg" />
+                  <Input type="number" placeholder="$1,000" {...field} className="bg-white/10 border-white/20 h-12 text-base md:text-lg" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -45,7 +45,7 @@ export function BudgetStep({ goNext, goPrev, currentStep, totalSteps }: BudgetSt
               <FormItem>
                 <FormLabel className="text-white/80">How much do you spend on average?</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="$500" {...field} className="bg-white/10 border-white/20 h-12 text-lg" />
+                  <Input type="number" placeholder="$500" {...field} className="bg-white/10 border-white/20 h-12 text-base md:text-lg" />
                 </FormControl>
                 <FormMessage />
               </FormItem>

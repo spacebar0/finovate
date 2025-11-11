@@ -148,8 +148,13 @@ export default function OnboardingPage() {
           <OnboardingGraphic step={currentStep} />
         </div>
         
-        <div className="flex flex-col justify-center p-6 bg-background rounded-t-3xl border-t border-white/10 h-2/3 md:h-1/2 lg:h-3/5">
-          <div className="w-full max-w-md mx-auto flex flex-col justify-center h-full">
+        <motion.div 
+          className="flex flex-col justify-center p-6 bg-background rounded-t-3xl border-t border-white/10"
+          initial={{ y: '100%' }}
+          animate={{ y: 0 }}
+          transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+        >
+          <div className="w-full max-w-md mx-auto flex flex-col justify-center">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentStep}
@@ -157,7 +162,7 @@ export default function OnboardingPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className="w-full h-full flex flex-col justify-between"
+                className="w-full flex flex-col"
               >
                 <CurrentStepComponent
                   goNext={goNext}
@@ -170,7 +175,7 @@ export default function OnboardingPage() {
               </motion.div>
             </AnimatePresence>
           </div>
-        </div>
+        </motion.div>
       </div>
     </FormProvider>
   );
