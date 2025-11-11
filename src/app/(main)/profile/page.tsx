@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Image from 'next/image';
-import { useUser, useDoc, useFirestore, useMemoFirebase, useCollection, updateDocumentNonBlocking } from '@/firebase';
+import { useUser, useDoc, useFirestore, useMemoFirebase, useCollection } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
 import type { User, Goal } from '@/firebase/auth/types';
 
@@ -100,9 +100,17 @@ export default function ProfilePage() {
   const { data: userData, isLoading: isUserLoading } = useDoc<User>(userDocRef);
   const { data: goals, isLoading: areGoalsLoading } = useCollection<Goal>(goalsCollectionRef);
 
-  // Set initial hardcoded XP here
+  // Set initial hardcoded XP here. This will be overwritten by Firestore data once loaded.
   const initialXp = 9000;
   const { xp = initialXp, displayName } = userData || {};
+
+  React.useEffect(() => {
+    // One-time effect to set the initial XP for the demo if it's not set in Firestore
+    if (userDocRef && userData && userData.xp === 0) {
+      updateDocumentNonBlocking(userDocRef, { xp: initialXp, level: Math.floor(initialXp / 1000) });
+    }
+  }, [userDocRef, userData]);
+
 
   if (isUserLoading || areGoalsLoading || !userData || !goals) {
     return <ProfilePageSkeleton />;
@@ -112,9 +120,12 @@ export default function ProfilePage() {
   const goalsCompleted = 67;
   
   const level = Math.floor(xp / 1000);
-  const xpForNextLevel = (level + 1) * 1000;
-  const xpPercentage = (xp % 1000) / 10;
-  
+  const xpForCurrentLevel = level * 1000;
+  const xpInCurrentLevel = xp - xpForCurrentLevel;
+  const xpNeededForNextLevel = 1000;
+  const xpPercentage = (xpInCurrentLevel / xpNeededForNextLevel) * 100;
+  const xpToNextLevel = xpNeededForNextLevel - xpInCurrentLevel;
+
   const totalSaved = goals.reduce((acc, goal) => acc + goal.currentAmount, 0);
   // Mock efficiency for now
   const budgetEfficiency = 85; 
@@ -142,7 +153,7 @@ export default function ProfilePage() {
           <div className="space-y-1">
             <Progress value={xpPercentage} className="h-2 bg-primary/20" />
             <p className="text-xs text-muted-foreground mt-1 text-right">
-              {xp.toLocaleString()} / {xpForNextLevel.toLocaleString()} XP
+              {xp.toLocaleString()} / {(level + 1) * 1000} XP ({xpToNextLevel.toLocaleString()} to next level)
             </p>
           </div>
         </CardContent>

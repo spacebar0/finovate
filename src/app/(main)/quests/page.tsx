@@ -2,7 +2,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { quests as mockQuests, type Quest } from '@/lib/data';
@@ -17,8 +17,9 @@ import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { StreakTracker } from '@/components/quests/streak-tracker';
 import { DepositDialog } from '@/components/dashboard/deposit-dialog';
-import { GoalsSlider } from '@/components/dashboard/goals-slider';
 import { Confetti } from '@/components/ui/confetti';
+import { Badge } from '@/components/ui/badge';
+
 
 type FilterType = 'All' | Quest['category'];
 const questCategories: FilterType[] = ['All', 'Savings', 'Budgeting', 'Learning', 'Investment', 'Community'];
@@ -109,43 +110,22 @@ export default function QuestsPage() {
   const availableQuests = filteredQuests.filter(q => q.status === 'available');
   const completedQuests = quests.filter(q => q.status === 'completed');
   
-  const totalXpFromCompletedQuests = React.useMemo(() => {
-    return completedQuests.reduce((total, quest) => {
-        if (quest.id === levelUpQuest.id && isXpClaimed) return total;
-        if (quest.id === levelUpQuest.id && !isXpClaimed) return total;
-        return total + quest.xp;
-    }, 0);
-  }, [completedQuests, isXpClaimed]);
-
-  const calculatedXp = (userData?.xp || 0) + totalXpFromCompletedQuests + (isXpClaimed ? levelUpQuest.xp : 0);
-  const oldLevel = userData ? Math.floor((userData.xp || 0) / 1000) : 0;
-  const calculatedLevel = Math.floor(calculatedXp / 1000);
-  const xpForNextLevel = (calculatedLevel + 1) * 1000;
-  const currentLevelXp = calculatedXp % 1000;
-  const xpPercentage = (currentLevelXp / 1000) * 100;
+  // Use the user's current XP from Firestore as the base
+  const currentXp = userData?.xp || 0;
+  const currentLevel = Math.floor(currentXp / 1000);
   
-  const xpToNextLevel = 1000 - currentLevelXp;
-
-  React.useEffect(() => {
-    if(userData) {
-        const currentLevel = Math.floor((userData.xp || 0) / 1000);
-        if (calculatedLevel > currentLevel) {
-            setShowConfetti(true);
-            toast({
-                title: 'Level Up!',
-                description: `Congratulations! You've reached Level ${calculatedLevel}.`,
-            });
-        }
-    }
-  }, [calculatedLevel, userData, toast]);
-
+  const xpForCurrentLevel = currentLevel * 1000;
+  const xpInCurrentLevel = currentXp - xpForCurrentLevel;
+  const xpNeededForNextLevel = 1000;
+  const xpPercentage = (xpInCurrentLevel / xpNeededForNextLevel) * 100;
+  const xpToNextLevel = xpNeededForNextLevel - xpInCurrentLevel;
 
   const handleCollectXp = () => {
     if (!userDocRef || !userData || isXpClaimed) return;
     
-    const currentXp = userData.xp || 0;
-    const newXp = currentXp + levelUpQuest.xp;
-    const oldLevel = Math.floor(currentXp / 1000);
+    const oldXp = userData.xp || 0;
+    const newXp = oldXp + levelUpQuest.xp;
+    const oldLevel = Math.floor(oldXp / 1000);
     const newLevel = Math.floor(newXp / 1000);
 
     updateDocumentNonBlocking(userDocRef, { xp: newXp, level: newLevel });
@@ -154,8 +134,8 @@ export default function QuestsPage() {
     if (newLevel > oldLevel) {
         setShowConfetti(true);
         toast({
-            title: `Level ${newLevel}!`,
-            description: "You've leveled up! New rewards might be available.",
+            title: `Level Up! You're now Level ${newLevel}!`,
+            description: "New rewards might be available.",
         });
     } else {
         toast({
@@ -193,11 +173,11 @@ export default function QuestsPage() {
             ) : (
               <div className="max-w-md mx-auto">
                 <div className="text-center text-sm text-muted-foreground mb-2">
-                  Level {calculatedLevel} • {calculatedXp.toLocaleString()} / {xpForNextLevel.toLocaleString()} XP
+                  Level {currentLevel} • {currentXp.toLocaleString()} / {(currentLevel + 1) * 1000} XP
                 </div>
                 <Progress value={xpPercentage} className="h-2" />
                 <p className="text-xs text-muted-foreground mt-1 text-right">
-                  {xpToNextLevel} XP to next level
+                  {xpToNextLevel.toLocaleString()} XP to next level
                 </p>
               </div>
             )}
@@ -257,8 +237,8 @@ export default function QuestsPage() {
           </div>
           
           {completedQuests.length > 0 && (
-            <Accordion type="single" collapsible className="w-full" initialValue='completed-quests'>
-              <AccordionItem value="completed-quests" className="border-none">
+            <Accordion type="single" collapsible className="w-full" initialValue='item-1'>
+              <AccordionItem value="item-1" className="border-none">
                 <AccordionTrigger className="text-2xl font-bold font-headline mb-4 no-underline hover:no-underline">
                   <div className="flex items-center">
                     <Trophy className="mr-3 h-6 w-6 text-accent" />
@@ -267,50 +247,46 @@ export default function QuestsPage() {
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {completedQuests.map(quest => {
-                        if(quest.id === levelUpQuest.id) {
-                           return (
-                             <Card
-                                key={quest.id}
-                                className='flex flex-col transition-all duration-300'
-                                style={{
-                                    background: 'hsla(40, 100%, 50%, 0.1)',
-                                    backdropFilter: 'blur(12px)',
-                                    border: '1px solid hsla(40, 100%, 50%, 0.3)',
-                                }}
-                            >
-                                <CardHeader className="flex-row items-start gap-4">
-                                    <div className="p-3 bg-background/50 rounded-lg">
-                                        <Trophy className="h-6 w-6 text-accent" />
-                                    </div>
-                                    <div className="flex-1">
-                                        <CardTitle className="font-headline text-lg">{quest.title}</CardTitle>
-                                        <CardDescription className="text-sm">{quest.description}</CardDescription>
-                                    </div>
-                                </CardHeader>
-                                <CardContent className="flex-1 space-y-4">
-                                    <div className="flex justify-between items-center text-sm">
-                                    <Badge variant="outline" className='font-mono border-yellow-500/50 text-yellow-400'>Special</Badge>
-                                    <span className="font-bold text-accent">+{quest.xp} XP</span>
-                                    </div>
-                                </CardContent>
-                                <CardFooter>
-                                    {isXpClaimed ? (
-                                         <Button variant="ghost" className="w-full text-green-400 cursor-default" disabled>
-                                            <CheckCircle2 className="mr-2 h-4 w-4" />
-                                            XP Claimed
-                                        </Button>
-                                    ) : (
-                                        <Button className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg" onClick={handleCollectXp}>
-                                            Collect XP
-                                        </Button>
-                                    )}
-                                </CardFooter>
-                            </Card>
-                           )
-                        }
-                        return <QuestCard key={quest.id} quest={quest} onStartQuest={handleStartQuest} />;
-                    })}
+                    <Card
+                        key={levelUpQuest.id}
+                        className='flex flex-col transition-all duration-300'
+                        style={{
+                            background: 'hsla(40, 100%, 50%, 0.1)',
+                            backdropFilter: 'blur(12px)',
+                            border: '1px solid hsla(40, 100%, 50%, 0.3)',
+                        }}
+                    >
+                        <CardHeader className="flex-row items-start gap-4">
+                            <div className="p-3 bg-background/50 rounded-lg">
+                                <Trophy className="h-6 w-6 text-accent" />
+                            </div>
+                            <div className="flex-1">
+                                <CardTitle className="font-headline text-lg">{levelUpQuest.title}</CardTitle>
+                                <CardDescription className="text-sm">{levelUpQuest.description}</CardDescription>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="flex-1 space-y-4">
+                            <div className="flex justify-between items-center text-sm">
+                            <Badge variant="outline" className='font-mono border-yellow-500/50 text-yellow-400'>Special</Badge>
+                            <span className="font-bold text-accent">+{levelUpQuest.xp} XP</span>
+                            </div>
+                        </CardContent>
+                        <CardFooter>
+                            {isXpClaimed ? (
+                                    <Button variant="ghost" className="w-full text-green-400 cursor-default" disabled>
+                                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                                    XP Claimed
+                                </Button>
+                            ) : (
+                                <Button className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg" onClick={handleCollectXp}>
+                                    Collect XP
+                                </Button>
+                            )}
+                        </CardFooter>
+                    </Card>
+                    {completedQuests.map(quest => (
+                        <QuestCard key={quest.id} quest={quest} onStartQuest={handleStartQuest} />
+                    ))}
                   </div>
                 </AccordionContent>
               </AccordionItem>
