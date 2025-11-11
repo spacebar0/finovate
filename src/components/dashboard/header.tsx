@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from "next/image";
@@ -89,7 +90,7 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
         </DropdownMenu>
       </div>
       <div className="mt-4">
-        <Progress value={xpPercentage} className="h-2 bg-primary/20" />
+        <Progress value={xpPercentage} className="h-2" />
         <p className="text-xs text-muted-foreground mt-1 text-right">
           {xpForNextLevel - (user.xp || 0)} XP to next level
         </p>

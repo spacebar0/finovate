@@ -103,19 +103,20 @@ export default function ProfilePage() {
 
   // Set initial hardcoded XP here. This will be overwritten by Firestore data once loaded.
   const initialXp = 9000;
-  const { xp = initialXp, displayName } = userData || {};
-
+  
   React.useEffect(() => {
     // One-time effect to set the initial XP for the demo if it's not set in Firestore
     if (userDocRef && userData && userData.xp === 0) {
       updateDocumentNonBlocking(userDocRef, { xp: initialXp, level: Math.floor(initialXp / 1000) });
     }
-  }, [userDocRef, userData, initialXp]);
+  }, [userDocRef, userData]);
 
 
   if (isUserLoading || areGoalsLoading || !userData || !goals) {
     return <ProfilePageSkeleton />;
   }
+  
+  const { xp = initialXp, displayName } = userData || {};
 
   // Hardcode goals completed for demonstration
   const goalsCompleted = 67;
@@ -152,7 +153,7 @@ export default function ProfilePage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-1">
-            <Progress value={xpPercentage} className="h-2 bg-primary/20" />
+            <Progress value={xpPercentage} className="h-2" />
             <p className="text-xs text-muted-foreground mt-1 text-right">
               {xp.toLocaleString()} / {(level + 1) * 1000} XP ({xpToNextLevel.toLocaleString()} to next level)
             </p>
