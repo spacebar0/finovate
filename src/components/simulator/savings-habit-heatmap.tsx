@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -5,9 +6,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Badge } from '@/components/ui/badge';
 import { subDays, format, isSameDay } from 'date-fns';
 import { Skeleton } from '../ui/skeleton';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+type HeatmapData = {
+  intensity: number;
+  amount: number;
+};
 
 const generateHeatmapData = (days: number) => {
-  const data = new Map<string, number>();
+  const data = new Map<string, HeatmapData>();
   let streak = 0;
   let maxStreak = 0;
   for (let i = 0; i < days; i++) {
@@ -15,7 +27,11 @@ const generateHeatmapData = (days: number) => {
     const formattedDate = format(date, 'yyyy-MM-dd');
     const saved = Math.random() > 0.3; // 70% chance of saving
     if (saved) {
-      data.set(formattedDate, Math.floor(Math.random() * 4) + 1); // Intensity 1-4
+      const amount = Math.floor(Math.random() * 50) + 5;
+      data.set(formattedDate, {
+        intensity: Math.min(4, Math.floor(amount / 10)),
+        amount: amount,
+      });
       streak++;
     } else {
       maxStreak = Math.max(maxStreak, streak);
@@ -29,7 +45,7 @@ const generateHeatmapData = (days: number) => {
 
 export function SavingsHabitHeatmap() {
   const [isClient, setIsClient] = React.useState(false);
-  const [heatmapData, setHeatmapData] = React.useState<{ data: Map<string, number>; maxStreak: number }>({ data: new Map(), maxStreak: 0 });
+  const [heatmapData, setHeatmapData] = React.useState<{ data: Map<string, HeatmapData>; maxStreak: number }>({ data: new Map(), maxStreak: 0 });
 
   React.useEffect(() => {
     setIsClient(true);
@@ -72,19 +88,32 @@ export function SavingsHabitHeatmap() {
         <CardDescription>Your savings consistency over the last 3 months.</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col items-center">
-        <div className="grid grid-cols-15 grid-rows-7 gap-1.5 w-full">
-          {days.map(day => {
-            const formattedDate = format(day, 'yyyy-MM-dd');
-            const intensity = heatmapData.data.get(formattedDate) || 0;
-            return (
-              <div
-                key={day.toString()}
-                className={`w-full aspect-square rounded-sm ${intensityColors[intensity]} ${isSameDay(day, today) ? 'ring-2 ring-accent' : ''}`}
-                title={`${formattedDate}: Level ${intensity}`}
-              />
-            );
-          })}
-        </div>
+        <TooltipProvider>
+          <div className="grid grid-cols-15 grid-rows-7 gap-1.5 w-full">
+            {days.map(day => {
+              const formattedDate = format(day, 'yyyy-MM-dd');
+              const dayData = heatmapData.data.get(formattedDate);
+              const intensity = dayData?.intensity || 0;
+              const amount = dayData?.amount || 0;
+
+              return (
+                <Tooltip key={day.toString()}>
+                  <TooltipTrigger>
+                    <div
+                      className={`w-full aspect-square rounded-sm ${intensityColors[intensity]} ${isSameDay(day, today) ? 'ring-2 ring-accent' : ''}`}
+                    />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-sm font-semibold">
+                      {amount > 0 ? `$${amount.toFixed(2)} saved` : 'No savings'}
+                    </p>
+                    <p className="text-xs text-muted-foreground">{formattedDate}</p>
+                  </TooltipContent>
+                </Tooltip>
+              );
+            })}
+          </div>
+        </TooltipProvider>
         <style jsx>{`.grid-cols-15 { grid-template-columns: repeat(15, minmax(0, 1fr)); }`}</style>
       </CardContent>
        <CardFooter className="flex items-center justify-between text-sm">
