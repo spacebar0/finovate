@@ -33,7 +33,7 @@ export function OnboardingGraphic({ step }: OnboardingGraphicProps) {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.8, y: -50 }}
           transition={{ duration: 0.5, type: 'spring', bounce: 0.3 }}
-          className="w-full h-auto max-w-xs md:max-w-sm"
+          className="w-full h-auto max-w-xs md:max-w-sm flex items-center justify-center"
         >
           <CurrentGraphic />
         </motion.div>

@@ -143,12 +143,12 @@ export default function OnboardingPage() {
 
   return (
     <FormProvider {...methods}>
-      <div className="flex flex-col h-screen bg-black text-white">
-        <div className="relative flex-[2] flex items-center justify-center p-4 md:p-8">
+      <div className="flex flex-col h-screen bg-black text-white overflow-hidden">
+        <div className="relative flex-1 flex items-center justify-center p-4 md:p-8">
           <OnboardingGraphic step={currentStep} />
         </div>
         
-        <div className="flex-[3] flex flex-col justify-center p-6 bg-background rounded-t-3xl border-t border-white/10">
+        <div className="flex-1 flex flex-col justify-center p-6 bg-background rounded-t-3xl border-t border-white/10">
           <div className="w-full max-w-md mx-auto flex flex-col justify-between h-full">
             <AnimatePresence mode="wait">
               <motion.div
