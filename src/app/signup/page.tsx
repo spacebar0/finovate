@@ -8,7 +8,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth, useUser, setDocumentNonBlocking } from '@/firebase';
 import { doc, getFirestore } from 'firebase/firestore';
-import { initiateEmailSignUp } from '@/firebase/non-blocking-login';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -30,6 +29,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Gamepad2 } from 'lucide-react';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
+import type { User } from '@/firebase/auth/types';
 
 const formSchema = z.object({
   displayName: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -67,8 +67,8 @@ export default function SignUpPage() {
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
       const newUser = userCredential.user;
 
-      const userProfile = {
-        id: newUser.uid,
+      const userProfile: User = {
+        uid: newUser.uid,
         displayName: values.displayName,
         email: newUser.email,
         avatarUrl: 'user-avatar',
@@ -77,10 +77,47 @@ export default function SignUpPage() {
         theme: 'dark',
         joinedAt: new Date().toISOString(),
         parentConsent: false,
+        budget: {
+          spending: 450.75,
+          budget: 600,
+          savingsGoal: 200,
+          currentSavings: 150,
+        }
       };
 
       const userDocRef = doc(firestore, 'users', newUser.uid);
       setDocumentNonBlocking(userDocRef, userProfile, { merge: true });
+
+      // Seed initial goals for the new user
+      const goals = [
+        {
+          id: "goal1",
+          title: "New Laptop",
+          currentAmount: 800,
+          targetAmount: 1200,
+          deadline: "in 2 months",
+        },
+        {
+          id: "goal2",
+          title: "Summer Vacation",
+          currentAmount: 350,
+          targetAmount: 1500,
+          deadline: "in 5 months",
+        },
+        {
+          id: "goal3",
+          title: "Concert Tickets",
+          currentAmount: 150,
+          targetAmount: 200,
+          deadline: "in 3 weeks",
+        },
+      ];
+
+      goals.forEach(goal => {
+        const goalDocRef = doc(firestore, `users/${newUser.uid}/goals`, goal.id);
+        setDocumentNonBlocking(goalDocRef, goal, { merge: false });
+      });
+
 
       toast({
         title: 'Account Created!',

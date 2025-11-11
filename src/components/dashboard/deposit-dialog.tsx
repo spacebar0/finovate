@@ -23,7 +23,9 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import type { Goal } from '@/lib/data';
+import type { Goal } from '@/firebase/auth/types';
+import { useFirestore, updateDocumentNonBlocking } from '@/firebase';
+import { doc } from 'firebase/firestore';
 
 const formSchema = z.object({
   amount: z.coerce
@@ -37,7 +39,7 @@ interface DepositDialogProps {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
   goal: Goal;
-  setGoals: React.Dispatch<React.SetStateAction<Goal[]>>;
+  userId: string;
   onGoalComplete: (goalId: string) => void;
 }
 
@@ -45,10 +47,11 @@ export function DepositDialog({
   isOpen,
   setIsOpen,
   goal,
-  setGoals,
+  userId,
   onGoalComplete,
 }: DepositDialogProps) {
   const { toast } = useToast();
+  const firestore = useFirestore();
 
   const form = useForm<DepositFormValues>({
     resolver: zodResolver(formSchema),
@@ -60,14 +63,11 @@ export function DepositDialog({
   const onSubmit = (values: DepositFormValues) => {
     const newCurrentAmount = goal.currentAmount + values.amount;
     const isCompleted = newCurrentAmount >= goal.targetAmount;
+    const finalAmount = Math.min(newCurrentAmount, goal.targetAmount);
 
-    setGoals(prevGoals =>
-      prevGoals.map(g =>
-        g.id === goal.id
-          ? { ...g, currentAmount: Math.min(newCurrentAmount, g.targetAmount) }
-          : g
-      )
-    );
+    const goalDocRef = doc(firestore, `users/${userId}/goals`, goal.id);
+    updateDocumentNonBlocking(goalDocRef, { currentAmount: finalAmount });
+
     setIsOpen(false);
     form.reset();
 

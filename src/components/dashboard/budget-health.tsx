@@ -13,7 +13,7 @@ import {
 import { ChartContainer } from '@/components/ui/chart';
 import { Button } from '@/components/ui/button';
 import { AdjustBudgetDialog } from '@/components/dashboard/adjust-budget-dialog';
-import type { BudgetState } from '@/app/(main)/page';
+import type { User } from '@/firebase/auth/types';
 
 const chartConfig = {
   progress: {
@@ -38,15 +38,10 @@ const getBudgetColor = (percentage: number): string => {
   return 'hsl(0, 84%, 60%)'; // Red
 };
 
-export function BudgetHealth({
-  budgetState,
-  setBudgetState,
-}: {
-  budgetState: BudgetState;
-  setBudgetState: React.Dispatch<React.SetStateAction<BudgetState>>;
-}) {
+export function BudgetHealth({ user }: { user: User }) {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
 
+  const budgetState = user.budget || { spending: 0, budget: 1, savingsGoal: 0, currentSavings: 0 };
   const { spending, budget } = budgetState;
   const percentage = budget > 0 ? Math.min(Math.round((spending / budget) * 100), 150) : 0;
   const status = getBudgetStatus(percentage);
@@ -128,7 +123,7 @@ export function BudgetHealth({
         isOpen={isDialogOpen}
         setIsOpen={setIsDialogOpen}
         budgetState={budgetState}
-        setBudgetState={setBudgetState}
+        user={user}
       />
     </>
   );

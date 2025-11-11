@@ -14,23 +14,31 @@ import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { DepositDialog } from '@/components/dashboard/deposit-dialog';
 import { GoalCompletionTick } from '@/components/dashboard/goal-completion-tick';
-import type { Goal } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { collection, doc, deleteDoc } from 'firebase/firestore';
+import type { Goal } from '@/firebase/auth/types';
 
 interface GoalsSliderProps {
-  goals: Goal[];
-  setGoals: React.Dispatch<React.SetStateAction<Goal[]>>;
   setShowConfetti: (show: boolean) => void;
 }
 
-export function GoalsSlider({ goals, setGoals, setShowConfetti }: GoalsSliderProps) {
+export function GoalsSlider({ setShowConfetti }: GoalsSliderProps) {
   const [api, setApi] = React.useState<CarouselApi>();
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [selectedGoal, setSelectedGoal] = React.useState<Goal | null>(null);
   const [completedGoalId, setCompletedGoalId] = React.useState<string | null>(null);
   const { toast } = useToast();
+  const { user } = useUser();
+  const firestore = useFirestore();
 
+  const goalsCollectionRef = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return collection(firestore, `users/${user.uid}/goals`);
+  }, [firestore, user]);
+
+  const { data: goals, isLoading } = useCollection<Goal>(goalsCollectionRef);
 
   const handleDepositClick = (goal: Goal) => {
     setSelectedGoal(goal);
@@ -38,14 +46,16 @@ export function GoalsSlider({ goals, setGoals, setShowConfetti }: GoalsSliderPro
   };
 
   const handleGoalComplete = (goalId: string) => {
-    const goal = goals.find(g => g.id === goalId);
-    if (goal) {
+    const goal = goals?.find(g => g.id === goalId);
+    if (goal && user) {
       toast({
         title: 'Goal Completed!',
         description: `You've reached your goal for "${goal.title}"!`,
       });
       setShowConfetti(true);
       setCompletedGoalId(goalId);
+      
+      const goalDocRef = doc(firestore, `users/${user.uid}/goals`, goalId);
 
       // Card drop animation is ~1.3s.
       // After it finishes, scroll to the next goal.
@@ -55,11 +65,19 @@ export function GoalsSlider({ goals, setGoals, setShowConfetti }: GoalsSliderPro
 
       // Animation duration is ~2.3s. Remove after that.
       setTimeout(() => {
-        setGoals(prevGoals => prevGoals.filter(g => g.id !== goalId));
+        deleteDoc(goalDocRef); // Non-blocking, but we can assume it works for UI purposes
         setCompletedGoalId(null);
       }, 2300);
     }
   };
+
+  if (isLoading) {
+    return <Card className="flex flex-col bg-card/80 backdrop-blur-lg border-border"><CardHeader><CardTitle className="font-headline">Quick Goals</CardTitle></CardHeader><CardContent className='flex items-center justify-center'><p>Loading goals...</p></CardContent></Card>
+  }
+  
+  if (!goals || goals.length === 0) {
+    return <Card className="flex flex-col bg-card/80 backdrop-blur-lg border-border"><CardHeader><CardTitle className="font-headline">Quick Goals</CardTitle></CardHeader><CardContent className='flex items-center justify-center'><p>No goals set yet. Add one!</p></CardContent></Card>
+  }
 
   return (
     <>
@@ -127,12 +145,12 @@ export function GoalsSlider({ goals, setGoals, setShowConfetti }: GoalsSliderPro
           </Carousel>
         </CardContent>
       </Card>
-      {selectedGoal && (
+      {selectedGoal && user && (
         <DepositDialog
           isOpen={isDialogOpen}
           setIsOpen={setIsDialogOpen}
           goal={selectedGoal}
-          setGoals={setGoals}
+          userId={user.uid}
           onGoalComplete={handleGoalComplete}
         />
       )}

@@ -44,6 +44,24 @@
         "parentConsent": {
           "type": "boolean",
           "description": "Indicates whether parental consent has been given (if required)."
+        },
+        "budget": {
+          "type": "object",
+          "description": "The user's budget information.",
+          "properties": {
+            "spending": {
+              "type": "number"
+            },
+            "budget": {
+              "type": "number"
+            },
+            "savingsGoal": {
+              "type": "number"
+            },
+            "currentSavings": {
+              "type": "number"
+            }
+          }
         }
       },
       "required": [

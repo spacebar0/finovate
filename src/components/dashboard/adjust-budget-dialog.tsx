@@ -4,7 +4,6 @@ import * as React from 'react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-
 import {
   Dialog,
   DialogContent,
@@ -24,7 +23,12 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import type { BudgetState } from '@/app/(main)/page';
+import {
+  useFirestore,
+  updateDocumentNonBlocking,
+} from '@/firebase';
+import { doc } from 'firebase/firestore';
+import type { User, Budget } from '@/firebase/auth/types';
 
 const formSchema = z.object({
   budget: z.coerce.number().positive('Budget must be a positive number.'),
@@ -38,21 +42,27 @@ type AdjustBudgetFormValues = z.infer<typeof formSchema>;
 interface AdjustBudgetDialogProps {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
-  budgetState: BudgetState;
-  setBudgetState: React.Dispatch<React.SetStateAction<BudgetState>>;
+  budgetState: Budget;
+  user: User;
 }
 
 export function AdjustBudgetDialog({
   isOpen,
   setIsOpen,
   budgetState,
-  setBudgetState,
+  user,
 }: AdjustBudgetDialogProps) {
   const { toast } = useToast();
+  const firestore = useFirestore();
 
   const form = useForm<AdjustBudgetFormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: budgetState,
+    defaultValues: budgetState || {
+      budget: 1000,
+      spending: 0,
+      savingsGoal: 200,
+      currentSavings: 0,
+    },
   });
 
   React.useEffect(() => {
@@ -60,7 +70,10 @@ export function AdjustBudgetDialog({
   }, [budgetState, form]);
 
   const onSubmit = (values: AdjustBudgetFormValues) => {
-    setBudgetState(values);
+    if (!user) return;
+    const userDocRef = doc(firestore, 'users', user.uid);
+    updateDocumentNonBlocking(userDocRef, { budget: values });
+
     setIsOpen(false);
     toast({
       title: 'Budget Updated',

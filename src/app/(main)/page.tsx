@@ -5,49 +5,48 @@ import { DashboardHeader } from '@/components/dashboard/header';
 import { BudgetHealth } from '@/components/dashboard/budget-health';
 import { GoalsSlider } from '@/components/dashboard/goals-slider';
 import { ActivityFeed } from '@/components/dashboard/activity-feed';
-import {
-  budgetHealth as initialBudgetHealth,
-  goals as initialGoals,
-} from '@/lib/data';
-import type { Goal } from '@/lib/data';
 import { Confetti } from '@/components/ui/confetti';
+import { useUser, useDoc, useFirestore, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
+import { Skeleton } from '@/components/ui/skeleton';
+import type { User } from '@/firebase/auth/types';
 
-export type BudgetState = {
-  spending: number;
-  budget: number;
-  savingsGoal: number;
-  currentSavings: number;
-};
 
 export default function DashboardPage() {
-  const [budgetState, setBudgetState] = React.useState<BudgetState>({
-    spending: initialBudgetHealth.spending,
-    budget: initialBudgetHealth.budget,
-    savingsGoal: initialBudgetHealth.savingsGoal,
-    currentSavings: initialBudgetHealth.currentSavings,
-  });
-  const [goals, setGoals] = React.useState<Goal[]>(initialGoals);
+  const { user } = useUser();
+  const firestore = useFirestore();
   const [showConfetti, setShowConfetti] = React.useState(false);
 
-  const handleDeposit = () => {
-    // Confetti is now triggered from the GoalsSlider when a goal is completed
-  };
+  const userDocRef = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return doc(firestore, 'users', user.uid);
+  }, [firestore, user]);
+
+  const { data: userData, isLoading: isUserDocLoading } = useDoc<User>(userDocRef);
+
+  if (isUserDocLoading || !userData) {
+    return (
+      <div className="container mx-auto max-w-4xl p-4 md:p-6">
+        <div className="space-y-6">
+          <Skeleton className="h-[150px] w-full" />
+          <div className="grid gap-6 md:grid-cols-2">
+            <Skeleton className="h-[300px] w-full" />
+            <Skeleton className="h-[300px] w-full" />
+          </div>
+          <Skeleton className="h-[200px] w-full" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto max-w-4xl p-4 md:p-6">
       <Confetti active={showConfetti} setActive={setShowConfetti} />
       <div className="space-y-6">
-        <DashboardHeader />
+        <DashboardHeader user={userData} />
         <div className="grid gap-6 md:grid-cols-2">
-          <BudgetHealth
-            budgetState={budgetState}
-            setBudgetState={setBudgetState}
-          />
-          <GoalsSlider
-            goals={goals}
-            setGoals={setGoals}
-            setShowConfetti={setShowConfetti}
-          />
+          <BudgetHealth user={userData} />
+          <GoalsSlider setShowConfetti={setShowConfetti} />
         </div>
         <ActivityFeed />
       </div>
