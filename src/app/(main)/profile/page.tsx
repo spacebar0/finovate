@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -113,7 +114,7 @@ const BadgeDisplay = ({ badge, isLast }: { badge: BadgeType, isLast?: boolean })
                             className="absolute -inset-0.5 rounded-full blur-sm opacity-75"
                             style={{ background: `linear-gradient(to right, ${badge.color}80, #a855f780)`}}
                         ></div>
-                        <div className="relative w-16 h-16 rounded-full bg-gray-800/80 flex items-center justify-center p-2">
+                        <div className="relative w-16 h-16 rounded-full flex items-center justify-center p-2">
                            <Image src={badge.icon} alt={badge.name} width={48} height={48} className="object-contain" />
                         </div>
                     </div>
@@ -281,3 +282,5 @@ export default function ProfilePage() {
     </>
   );
 }
+
+    
