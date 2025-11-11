@@ -15,6 +15,7 @@ import { doc } from 'firebase/firestore';
 import type { User } from '@/firebase/auth/types';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
+import { StreakTracker } from '@/components/quests/streak-tracker';
 
 type FilterType = 'All' | Quest['category'];
 const questCategories: FilterType[] = ['All', 'Savings', 'Budgeting', 'Learning', 'Investment', 'Community'];
@@ -104,6 +105,8 @@ export default function QuestsPage() {
           )}
         </CardContent>
       </Card>
+
+      <StreakTracker />
 
       <div className="flex flex-wrap items-center justify-center gap-2">
         {questCategories.map(category => (
