@@ -8,6 +8,7 @@ import {
   Sheet,
   SheetContent,
   SheetHeader,
+  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,7 @@ export function DesktopNav() {
         </SheetTrigger>
         <SheetContent side="left" className="w-[250px] bg-background/80 backdrop-blur-lg p-0">
           <SheetHeader className="p-4 border-b">
+            <SheetTitle className="sr-only">Main Navigation</SheetTitle>
             <Link href="/" className="flex items-center gap-2" onClick={() => setIsOpen(false)}>
               <Gamepad2 className="h-6 w-6 text-primary" />
               <h2 className="text-lg font-headline">Finnovate</h2>
