@@ -1,21 +1,118 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import * as React from 'react';
+import { Button } from "@/components/ui/button";
+import { PlusCircle } from "lucide-react";
+import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
+import { collection } from "firebase/firestore";
+import type { User, Goal } from '@/firebase/auth/types';
+import { WalletCard } from '@/components/wallets/wallet-card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { DepositDialog } from '@/components/dashboard/deposit-dialog';
+import { useToast } from '@/hooks/use-toast';
+import { Confetti } from '@/components/ui/confetti';
 
 export default function WalletsPage() {
+  const { user } = useUser();
+  const firestore = useFirestore();
+  const { toast } = useToast();
+
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const [dialogMode, setDialogMode] = React.useState<'deposit' | 'withdraw'>('deposit');
+  const [selectedGoal, setSelectedGoal] = React.useState<Goal | null>(null);
+  const [showConfetti, setShowConfetti] = React.useState(false);
+
+  const goalsCollectionRef = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return collection(firestore, `users/${user.uid}/goals`);
+  }, [firestore, user]);
+
+  const { data: goals, isLoading: areGoalsLoading } = useCollection<Goal>(goalsCollectionRef);
+
+  const totalBalance = React.useMemo(() => {
+    if (!goals) return 0;
+    return goals.reduce((acc, goal) => acc + goal.currentAmount, 0);
+  }, [goals]);
+
+  const handleOpenDialog = (goal: Goal, mode: 'deposit' | 'withdraw') => {
+    setSelectedGoal(goal);
+    setDialogMode(mode);
+    setIsDialogOpen(true);
+  };
+  
+  const handleGoalComplete = (goalId: string) => {
+    const goal = goals?.find(g => g.id === goalId);
+    if (goal) {
+      toast({
+        title: 'Goal Completed!',
+        description: `You've reached your goal for "${goal.title}"!`,
+      });
+      setShowConfetti(true);
+      // Note: Goal deletion is handled in the dashboard for now.
+      // We can add it here if needed.
+    }
+  };
+  
+  // A simple handler for the main "Create" button
+  const handleCreateWallet = () => {
+    toast({
+      title: 'Coming Soon!',
+      description: 'The ability to create new wallets is on its way.',
+    });
+  };
+
   return (
-    <div className="container mx-auto max-w-4xl p-4 md:p-6">
-      <Card style={{ 
-        background: "hsla(0, 0%, 100%, 0.05)",
-        backdropFilter: "blur(12px)",
-      }}>
-        <CardHeader>
-          <CardTitle className="font-headline">Wallets & Goals</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">This is a placeholder for the Wallets & Goals page.</p>
-        </CardContent>
-      </Card>
+    <>
+    <div className="container mx-auto max-w-6xl p-4 md:p-6 space-y-8">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl md:text-4xl font-bold font-headline">Your Wallets</h1>
+          <p className="text-muted-foreground">
+            Total Balance: <span className="font-semibold text-foreground">${totalBalance.toLocaleString()}</span>
+          </p>
+        </div>
+        <Button onClick={handleCreateWallet} className="bg-gradient-to-r from-primary to-secondary text-primary-foreground shadow-[0_4px_15px_rgba(53,37,139,0.35)] hover:shadow-lg transition-shadow">
+          <PlusCircle className="mr-2" />
+          Create Wallet
+        </Button>
+      </div>
+
+      {areGoalsLoading ? (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-[250px] w-full" />)}
+        </div>
+      ) : goals && goals.length > 0 ? (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {goals.map(goal => (
+            <WalletCard 
+              key={goal.id} 
+              goal={goal}
+              onDeposit={() => handleOpenDialog(goal, 'deposit')}
+              onWithdraw={() => handleOpenDialog(goal, 'withdraw')}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-20 rounded-lg" style={{ background: "hsla(0, 0%, 100%, 0.05)", backdropFilter: "blur(12px)" }}>
+            <h3 className="text-xl font-semibold">No Wallets Found</h3>
+            <p className="text-muted-foreground mt-2">Click "Create Wallet" to start your first savings goal.</p>
+        </div>
+      )}
     </div>
+    
+    <Confetti active={showConfetti} setActive={setShowConfetti} />
+
+    {goals && user && firestore && selectedGoal && (
+      <DepositDialog
+        isOpen={isDialogOpen}
+        setIsOpen={setIsDialogOpen}
+        goals={goals}
+        userId={user.uid}
+        onGoalComplete={handleGoalComplete}
+        initialGoalId={selectedGoal.id}
+        mode={dialogMode}
+      />
+    )}
+    </>
   );
 }

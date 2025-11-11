@@ -37,7 +37,7 @@ import { doc } from 'firebase/firestore';
 const formSchema = z.object({
   amount: z.coerce
     .number()
-    .positive('Deposit amount must be a positive number.'),
+    .positive('Amount must be a positive number.'),
   goalId: z.string({ required_error: 'Please select a goal.' }),
 });
 
@@ -50,6 +50,7 @@ interface DepositDialogProps {
   userId: string;
   onGoalComplete: (goalId: string) => void;
   initialGoalId?: string | null;
+  mode?: 'deposit' | 'withdraw';
 }
 
 export function DepositDialog({
@@ -59,6 +60,7 @@ export function DepositDialog({
   userId,
   onGoalComplete,
   initialGoalId,
+  mode = 'deposit',
 }: DepositDialogProps) {
   const { toast } = useToast();
   const firestore = useFirestore();
@@ -89,10 +91,21 @@ export function DepositDialog({
       });
       return;
     }
+    
+    const amount = mode === 'deposit' ? values.amount : -values.amount;
+    const newCurrentAmount = selectedGoal.currentAmount + amount;
 
-    const newCurrentAmount = selectedGoal.currentAmount + values.amount;
-    const isCompleted = newCurrentAmount >= selectedGoal.targetAmount;
-    const finalAmount = isCompleted ? selectedGoal.targetAmount : newCurrentAmount;
+    if (mode === 'withdraw' && newCurrentAmount < 0) {
+      toast({
+        variant: 'destructive',
+        title: 'Invalid Amount',
+        description: 'Withdrawal amount cannot be greater than the current balance.',
+      });
+      return;
+    }
+
+    const isCompleted = mode === 'deposit' && newCurrentAmount >= selectedGoal.targetAmount;
+    const finalAmount = isCompleted ? selectedGoal.targetAmount : Math.max(0, newCurrentAmount);
 
     const goalDocRef = doc(firestore, `users/${userId}/goals`, selectedGoal.id);
     updateDocumentNonBlocking(goalDocRef, { currentAmount: finalAmount });
@@ -103,21 +116,27 @@ export function DepositDialog({
       onGoalComplete(selectedGoal.id);
     } else {
       toast({
-        title: 'Deposit Successful',
+        title: `${mode === 'deposit' ? 'Deposit' : 'Withdrawal'} Successful`,
         description: `$${values.amount.toFixed(
           2
-        )} has been added to your "${selectedGoal.title}" goal.`,
+        )} has been ${mode === 'deposit' ? 'added to' : 'withdrawn from'} your "${selectedGoal.title}" goal.`,
       });
     }
   };
+
+  const title = mode === 'deposit' ? 'Make a Deposit' : 'Make a Withdrawal';
+  const description = mode === 'deposit' ? 'Add funds to one of your savings goals.' : 'Withdraw funds from one of your savings goals.';
+  const buttonText = mode === 'deposit' ? 'Confirm Deposit' : 'Confirm Withdrawal';
+  const amountLabel = mode === 'deposit' ? 'Deposit Amount ($)' : 'Withdrawal Amount ($)';
+
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="bg-card/80 backdrop-blur-lg border-border">
         <DialogHeader>
-          <DialogTitle className="font-headline">Make a Deposit</DialogTitle>
+          <DialogTitle className="font-headline">{title}</DialogTitle>
           <DialogDescription>
-            Add funds to one of your savings goals.
+            {description}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -131,13 +150,13 @@ export function DepositDialog({
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Choose a goal to deposit into..." />
+                        <SelectValue placeholder="Choose a goal..." />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {goals.map(goal => (
                         <SelectItem key={goal.id} value={goal.id}>
-                          {goal.title}
+                          {goal.title} (${goal.currentAmount.toLocaleString()} / ${goal.targetAmount.toLocaleString()})
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -151,7 +170,7 @@ export function DepositDialog({
               name="amount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Deposit Amount ($)</FormLabel>
+                  <FormLabel>{amountLabel}</FormLabel>
                   <FormControl>
                     <Input type="number" step="1" {...field} />
                   </FormControl>
@@ -160,7 +179,7 @@ export function DepositDialog({
               )}
             />
             <DialogFooter>
-              <Button type="submit">Confirm Deposit</Button>
+              <Button type="submit">{buttonText}</Button>
             </DialogFooter>
           </form>
         </Form>
