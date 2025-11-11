@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { motion, useInView } from 'framer-motion';
+import { animate, useInView } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -14,7 +14,7 @@ function AnimatedNumber({ value }: { value: number }) {
 
   React.useEffect(() => {
     if (isInView) {
-      const controls = motion.animate(0, value, {
+      const controls = animate(0, value, {
         duration: 1.5,
         ease: "easeOut",
         onUpdate: (latest) => {
@@ -86,7 +86,7 @@ export function WalletsOverview({ user, isLoading }: WalletsOverviewProps) {
         <div className="space-y-2">
             <div className="flex justify-between text-sm text-muted-foreground">
                 <span>Savings Goal Progress</span>
-                <span><AnimatedNumber value={currentSavings} /> / <AnimatedNumber value={savingsGoal} /></span>
+                <span><AnimatedNumber value={currentSavings} /> / ${savingsGoal.toLocaleString()}</span>
             </div>
           <Progress value={savingsProgress} className="h-2" />
         </div>
