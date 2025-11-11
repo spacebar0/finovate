@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/chart';
 import { Badge } from '@/components/ui/badge';
 import { format, subDays, addDays } from 'date-fns';
+import { Skeleton } from '../ui/skeleton';
 
 const chartConfig = {
   score: {
@@ -49,7 +50,23 @@ export function FinancialHealthTimeline() {
   }, []);
 
   if (!isClient) {
-    return null;
+    return (
+      <Card className="bg-card/80 backdrop-blur-lg border-border">
+        <CardHeader>
+          <CardTitle className="font-headline">Financial Health Score</CardTitle>
+          <CardDescription>
+            Your AI-calculated financial score over the last 30 days.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-[200px] w-full" />
+        </CardContent>
+        <CardFooter className="flex items-center justify-between">
+          <Skeleton className="h-8 w-24" />
+          <Skeleton className="h-6 w-20" />
+        </CardFooter>
+      </Card>
+    );
   }
   
   const currentScore = chartData.length > 0 ? chartData[chartData.length - 1].score : 0;

@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { subDays, format, isSameDay } from 'date-fns';
+import { Skeleton } from '../ui/skeleton';
 
 const generateHeatmapData = (days: number) => {
   const data = new Map<string, number>();
@@ -46,7 +47,23 @@ export function SavingsHabitHeatmap() {
     'bg-primary',      // Level 4
   ];
   
-  if (!isClient) return null;
+  if (!isClient) {
+    return (
+      <Card className="bg-card/80 backdrop-blur-lg border-border">
+        <CardHeader>
+          <CardTitle className="font-headline">Savings Habit Heatmap</CardTitle>
+          <CardDescription>Your savings consistency over the last 3 months.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-[120px] w-full" />
+        </CardContent>
+        <CardFooter className="flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">Longest Streak</span>
+          <Skeleton className="h-6 w-16" />
+        </CardFooter>
+      </Card>
+    );
+  }
 
   return (
     <Card className="bg-card/80 backdrop-blur-lg border-border">
