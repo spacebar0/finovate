@@ -8,9 +8,9 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { quests as mockQuests, type Quest } from '@/lib/data';
 import { QuestCard } from '@/components/quests/quest-card';
 import { useToast } from '@/hooks/use-toast';
-import { Target, Check, Trophy } from 'lucide-react';
+import { Target, Check, Trophy, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useUser, useDoc, useFirestore, useMemoFirebase, useCollection } from '@/firebase';
+import { useUser, useDoc, useFirestore, useMemoFirebase, useCollection, updateDocumentNonBlocking } from '@/firebase';
 import { collection, deleteDoc, doc } from 'firebase/firestore';
 import type { User, Goal } from '@/firebase/auth/types';
 import { Progress } from '@/components/ui/progress';
@@ -23,14 +23,29 @@ import { Confetti } from '@/components/ui/confetti';
 type FilterType = 'All' | Quest['category'];
 const questCategories: FilterType[] = ['All', 'Savings', 'Budgeting', 'Learning', 'Investment', 'Community'];
 
+const levelUpQuest: Quest = {
+  id: 'q10-levelup',
+  title: 'Level Up!',
+  description: 'A special reward for your dedication. Collect your bonus XP!',
+  category: 'Community',
+  difficulty: 'Easy',
+  xp: 1000,
+  icon: 'Trophy',
+  status: 'completed',
+  progress: 1,
+  goal: 1
+};
+
+
 export default function QuestsPage() {
-  const [quests, setQuests] = React.useState<Quest[]>(mockQuests);
+  const [quests, setQuests] = React.useState<Quest[]>([levelUpQuest, ...mockQuests]);
   const [activeFilter, setActiveFilter] = React.useState<FilterType>('All');
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [selectedGoalId, setSelectedGoalId] = React.useState<string | null>(null);
   const [completedGoalId, setCompletedGoalId] = React.useState<string | null>(null);
   const [showConfetti, setShowConfetti] = React.useState(false);
+  const [isXpClaimed, setIsXpClaimed] = React.useState(false);
 
   const { user } = useUser();
   const firestore = useFirestore();
@@ -95,16 +110,60 @@ export default function QuestsPage() {
   const completedQuests = quests.filter(q => q.status === 'completed');
   
   const totalXpFromCompletedQuests = React.useMemo(() => {
-    return completedQuests.reduce((total, quest) => total + quest.xp, 0);
-  }, [completedQuests]);
+    return completedQuests.reduce((total, quest) => {
+        if (quest.id === levelUpQuest.id && isXpClaimed) return total;
+        if (quest.id === levelUpQuest.id && !isXpClaimed) return total;
+        return total + quest.xp;
+    }, 0);
+  }, [completedQuests, isXpClaimed]);
 
-  const calculatedXp = (userData?.xp || 0) + totalXpFromCompletedQuests;
-  const calculatedLevel = Math.floor(calculatedXp / 1000) + 1;
-  const xpForNextLevel = calculatedLevel * 1000;
+  const calculatedXp = (userData?.xp || 0) + totalXpFromCompletedQuests + (isXpClaimed ? levelUpQuest.xp : 0);
+  const oldLevel = userData ? Math.floor((userData.xp || 0) / 1000) : 0;
+  const calculatedLevel = Math.floor(calculatedXp / 1000);
+  const xpForNextLevel = (calculatedLevel + 1) * 1000;
   const currentLevelXp = calculatedXp % 1000;
   const xpPercentage = (currentLevelXp / 1000) * 100;
   
   const xpToNextLevel = 1000 - currentLevelXp;
+
+  React.useEffect(() => {
+    if(userData) {
+        const currentLevel = Math.floor((userData.xp || 0) / 1000);
+        if (calculatedLevel > currentLevel) {
+            setShowConfetti(true);
+            toast({
+                title: 'Level Up!',
+                description: `Congratulations! You've reached Level ${calculatedLevel}.`,
+            });
+        }
+    }
+  }, [calculatedLevel, userData, toast]);
+
+
+  const handleCollectXp = () => {
+    if (!userDocRef || !userData || isXpClaimed) return;
+    
+    const currentXp = userData.xp || 0;
+    const newXp = currentXp + levelUpQuest.xp;
+    const oldLevel = Math.floor(currentXp / 1000);
+    const newLevel = Math.floor(newXp / 1000);
+
+    updateDocumentNonBlocking(userDocRef, { xp: newXp, level: newLevel });
+    setIsXpClaimed(true);
+
+    if (newLevel > oldLevel) {
+        setShowConfetti(true);
+        toast({
+            title: `Level ${newLevel}!`,
+            description: "You've leveled up! New rewards might be available.",
+        });
+    } else {
+        toast({
+            title: 'XP Collected!',
+            description: `You earned ${levelUpQuest.xp} XP!`,
+        });
+    }
+  };
 
   return (
     <>
@@ -198,7 +257,7 @@ export default function QuestsPage() {
           </div>
           
           {completedQuests.length > 0 && (
-            <Accordion type="single" collapsible className="w-full">
+            <Accordion type="single" collapsible className="w-full" initialValue='completed-quests'>
               <AccordionItem value="completed-quests" className="border-none">
                 <AccordionTrigger className="text-2xl font-bold font-headline mb-4 no-underline hover:no-underline">
                   <div className="flex items-center">
@@ -208,9 +267,50 @@ export default function QuestsPage() {
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {completedQuests.map(quest => (
-                      <QuestCard key={quest.id} quest={quest} onStartQuest={handleStartQuest} />
-                    ))}
+                    {completedQuests.map(quest => {
+                        if(quest.id === levelUpQuest.id) {
+                           return (
+                             <Card
+                                key={quest.id}
+                                className='flex flex-col transition-all duration-300'
+                                style={{
+                                    background: 'hsla(40, 100%, 50%, 0.1)',
+                                    backdropFilter: 'blur(12px)',
+                                    border: '1px solid hsla(40, 100%, 50%, 0.3)',
+                                }}
+                            >
+                                <CardHeader className="flex-row items-start gap-4">
+                                    <div className="p-3 bg-background/50 rounded-lg">
+                                        <Trophy className="h-6 w-6 text-accent" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <CardTitle className="font-headline text-lg">{quest.title}</CardTitle>
+                                        <CardDescription className="text-sm">{quest.description}</CardDescription>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="flex-1 space-y-4">
+                                    <div className="flex justify-between items-center text-sm">
+                                    <Badge variant="outline" className='font-mono border-yellow-500/50 text-yellow-400'>Special</Badge>
+                                    <span className="font-bold text-accent">+{quest.xp} XP</span>
+                                    </div>
+                                </CardContent>
+                                <CardFooter>
+                                    {isXpClaimed ? (
+                                         <Button variant="ghost" className="w-full text-green-400 cursor-default" disabled>
+                                            <CheckCircle2 className="mr-2 h-4 w-4" />
+                                            XP Claimed
+                                        </Button>
+                                    ) : (
+                                        <Button className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg" onClick={handleCollectXp}>
+                                            Collect XP
+                                        </Button>
+                                    )}
+                                </CardFooter>
+                            </Card>
+                           )
+                        }
+                        return <QuestCard key={quest.id} quest={quest} onStartQuest={handleStartQuest} />;
+                    })}
                   </div>
                 </AccordionContent>
               </AccordionItem>

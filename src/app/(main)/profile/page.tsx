@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Image from 'next/image';
-import { useUser, useDoc, useFirestore, useMemoFirebase, useCollection } from '@/firebase';
+import { useUser, useDoc, useFirestore, useMemoFirebase, useCollection, updateDocumentNonBlocking } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
 import type { User, Goal } from '@/firebase/auth/types';
 
@@ -100,15 +100,17 @@ export default function ProfilePage() {
   const { data: userData, isLoading: isUserLoading } = useDoc<User>(userDocRef);
   const { data: goals, isLoading: areGoalsLoading } = useCollection<Goal>(goalsCollectionRef);
 
+  // Set initial hardcoded XP here
+  const initialXp = 9000;
+  const { xp = initialXp, displayName } = userData || {};
+
   if (isUserLoading || areGoalsLoading || !userData || !goals) {
     return <ProfilePageSkeleton />;
   }
 
-  // Hardcode XP and goals completed for demonstration
-  const xp = 9999;
+  // Hardcode goals completed for demonstration
   const goalsCompleted = 67;
   
-  const { displayName } = userData;
   const level = Math.floor(xp / 1000);
   const xpForNextLevel = (level + 1) * 1000;
   const xpPercentage = (xp % 1000) / 10;
