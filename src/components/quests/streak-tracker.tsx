@@ -85,7 +85,7 @@ export function StreakTracker() {
       </div>
 
       <p className="text-center text-xs text-muted-foreground">
-        Only 4% of Fundies made it there, keep it up!
+        Only 4% of Cactillionaires made it there, keep it up!
       </p>
     </div>
   );
