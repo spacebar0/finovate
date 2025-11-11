@@ -37,9 +37,22 @@ const levelUpQuest: Quest = {
   goal: 1
 };
 
+const levelUpQuest2: Quest = {
+  id: 'q11-levelup-test',
+  title: 'Test Reward!',
+  description: 'A special reward for testing. Collect your bonus XP!',
+  category: 'Community',
+  difficulty: 'Easy',
+  xp: 500,
+  icon: 'Trophy',
+  status: 'completed',
+  progress: 1,
+  goal: 1,
+};
+
 
 export default function QuestsPage() {
-  const [quests, setQuests] = React.useState<Quest[]>([levelUpQuest, ...mockQuests]);
+  const [quests, setQuests] = React.useState<Quest[]>([levelUpQuest, levelUpQuest2, ...mockQuests]);
   const [activeFilter, setActiveFilter] = React.useState<FilterType>('All');
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
@@ -47,6 +60,7 @@ export default function QuestsPage() {
   const [completedGoalId, setCompletedGoalId] = React.useState<string | null>(null);
   const [showConfetti, setShowConfetti] = React.useState(false);
   const [isXpClaimed, setIsXpClaimed] = React.useState(false);
+  const [isXp2Claimed, setIsXp2Claimed] = React.useState(false);
 
   const { user } = useUser();
   const firestore = useFirestore();
@@ -141,6 +155,31 @@ export default function QuestsPage() {
         toast({
             title: 'XP Collected!',
             description: `You earned ${levelUpQuest.xp} XP!`,
+        });
+    }
+  };
+
+  const handleCollectXp2 = () => {
+    if (!userDocRef || !userData || isXp2Claimed) return;
+    
+    const oldXp = userData.xp || 0;
+    const newXp = oldXp + levelUpQuest2.xp;
+    const oldLevel = Math.floor(oldXp / 1000);
+    const newLevel = Math.floor(newXp / 1000);
+
+    updateDocumentNonBlocking(userDocRef, { xp: newXp, level: newLevel });
+    setIsXp2Claimed(true);
+
+    if (newLevel > oldLevel) {
+        setShowConfetti(true);
+        toast({
+            title: `Level Up! You're now Level ${newLevel}!`,
+            description: "New rewards might be available.",
+        });
+    } else {
+        toast({
+            title: 'XP Collected!',
+            description: `You earned ${levelUpQuest2.xp} XP!`,
         });
     }
   };
@@ -284,7 +323,44 @@ export default function QuestsPage() {
                             )}
                         </CardFooter>
                     </Card>
-                    {completedQuests.filter(q => q.id !== levelUpQuest.id).map(quest => (
+                     <Card
+                        key={levelUpQuest2.id}
+                        className='flex flex-col transition-all duration-300'
+                        style={{
+                            background: 'hsla(120, 100%, 50%, 0.1)',
+                            backdropFilter: 'blur(12px)',
+                            border: '1px solid hsla(120, 100%, 50%, 0.3)',
+                        }}
+                    >
+                        <CardHeader className="flex-row items-start gap-4">
+                            <div className="p-3 bg-background/50 rounded-lg">
+                                <Trophy className="h-6 w-6 text-green-400" />
+                            </div>
+                            <div className="flex-1">
+                                <CardTitle className="font-headline text-lg">{levelUpQuest2.title}</CardTitle>
+                                <CardDescription className="text-sm">{levelUpQuest2.description}</CardDescription>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="flex-1 space-y-4">
+                            <div className="flex justify-between items-center text-sm">
+                            <Badge variant="outline" className='font-mono border-green-500/50 text-green-400'>Test</Badge>
+                            <span className="font-bold text-green-400">+{levelUpQuest2.xp} XP</span>
+                            </div>
+                        </CardContent>
+                        <CardFooter>
+                            {isXp2Claimed ? (
+                                <Button variant="ghost" className="w-full text-green-400 cursor-default" disabled>
+                                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                                    XP Claimed
+                                </Button>
+                            ) : (
+                                <Button className="w-full bg-gradient-to-r from-green-500 to-teal-500 text-white shadow-lg" onClick={handleCollectXp2}>
+                                    Collect XP
+                                </Button>
+                            )}
+                        </CardFooter>
+                    </Card>
+                    {completedQuests.filter(q => q.id !== levelUpQuest.id && q.id !== levelUpQuest2.id).map(quest => (
                         <QuestCard key={quest.id} quest={quest} onStartQuest={handleStartQuest} />
                     ))}
                   </div>
