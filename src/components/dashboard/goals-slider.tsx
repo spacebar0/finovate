@@ -12,68 +12,36 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { DepositDialog } from '@/components/dashboard/deposit-dialog';
 import { GoalCompletionTick } from '@/components/dashboard/goal-completion-tick';
 import { cn } from '@/lib/utils';
-import { useToast } from '@/hooks/use-toast';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, doc, deleteDoc } from 'firebase/firestore';
+import { collection } from 'firebase/firestore';
 import type { Goal } from '@/firebase/auth/types';
 import { differenceInDays, parseISO } from 'date-fns';
+import { Skeleton } from '../ui/skeleton';
 
 interface GoalsSliderProps {
   setShowConfetti: (show: boolean) => void;
+  goals: Goal[] | null;
+  isLoading: boolean;
+  onDepositClick: (goal: Goal) => void;
+  completedGoalId: string | null;
+  setCompletedGoalId: (id: string | null) => void;
+  api?: CarouselApi;
+  setApi?: (api: CarouselApi) => void;
 }
 
-export function GoalsSlider({ setShowConfetti }: GoalsSliderProps) {
+export function GoalsSlider({ 
+  setShowConfetti, 
+  goals, 
+  isLoading,
+  onDepositClick,
+  completedGoalId,
+}: GoalsSliderProps) {
   const [api, setApi] = React.useState<CarouselApi>();
-  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-  const [selectedGoal, setSelectedGoal] = React.useState<Goal | null>(null);
-  const [completedGoalId, setCompletedGoalId] = React.useState<string | null>(null);
-  const { toast } = useToast();
-  const { user } = useUser();
-  const firestore = useFirestore();
-
-  const goalsCollectionRef = useMemoFirebase(() => {
-    if (!firestore || !user) return null;
-    return collection(firestore, `users/${user.uid}/goals`);
-  }, [firestore, user]);
-
-  const { data: goals, isLoading } = useCollection<Goal>(goalsCollectionRef);
-
-  const handleDepositClick = (goal: Goal) => {
-    setSelectedGoal(goal);
-    setIsDialogOpen(true);
-  };
-
-  const handleGoalComplete = (goalId: string) => {
-    const goal = goals?.find(g => g.id === goalId);
-    if (goal && user) {
-      toast({
-        title: 'Goal Completed!',
-        description: `You've reached your goal for "${goal.title}"!`,
-      });
-      setShowConfetti(true);
-      setCompletedGoalId(goalId);
-      
-      const goalDocRef = doc(firestore, `users/${user.uid}/goals`, goalId);
-
-      // Card drop animation is ~1.3s.
-      // After it finishes, scroll to the next goal.
-      setTimeout(() => {
-        api?.scrollNext();
-      }, 1300);
-
-      // Animation duration is ~2.3s. Remove after that.
-      setTimeout(() => {
-        deleteDoc(goalDocRef); // Non-blocking, but we can assume it works for UI purposes
-        setCompletedGoalId(null);
-      }, 2300);
-    }
-  };
 
   if (isLoading) {
-    return <Card className="flex flex-col" style={{ background: "hsla(0, 0%, 100%, 0.05)", backdropFilter: "blur(12px)" }}><CardHeader><CardTitle className="font-headline">Quick Goals</CardTitle></CardHeader><CardContent className='flex items-center justify-center'><p>Loading goals...</p></CardContent></Card>
+    return <Card className="flex flex-col" style={{ background: "hsla(0, 0%, 100%, 0.05)", backdropFilter: "blur(12px)" }}><CardHeader><CardTitle className="font-headline">Quick Goals</CardTitle></CardHeader><CardContent className='flex items-center justify-center'><Skeleton className="h-64 w-64" /></CardContent></Card>
   }
   
   if (!goals || goals.length === 0) {
@@ -144,7 +112,7 @@ export function GoalsSlider({ setShowConfetti }: GoalsSliderProps) {
                             </div>
                           </div>
                           <Button
-                            onClick={() => handleDepositClick(goal)}
+                            onClick={() => onDepositClick(goal)}
                             className="w-full bg-gradient-to-r from-primary to-secondary text-primary-foreground shadow-[0_4px_15px_rgba(53,37,139,0.35)] hover:shadow-lg transition-shadow"
                             disabled={isCompleted}
                           >
@@ -162,15 +130,6 @@ export function GoalsSlider({ setShowConfetti }: GoalsSliderProps) {
           </Carousel>
         </CardContent>
       </Card>
-      {selectedGoal && user && (
-        <DepositDialog
-          isOpen={isDialogOpen}
-          setIsOpen={setIsDialogOpen}
-          goal={selectedGoal}
-          userId={user.uid}
-          onGoalComplete={handleGoalComplete}
-        />
-      )}
     </>
   );
 }

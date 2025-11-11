@@ -3,6 +3,8 @@
 
 import { Flame } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import type { Goal } from '@/firebase/auth/types';
+import { Skeleton } from '../ui/skeleton';
 
 const GhostIcon = () => (
   <svg
@@ -49,9 +51,22 @@ const StreakDay = ({
   </div>
 );
 
-export function StreakTracker() {
+interface StreakTrackerProps {
+  goals: Goal[];
+  onSaveTodayClick: (goal: Goal) => void;
+  isLoading: boolean;
+}
+
+export function StreakTracker({ goals, onSaveTodayClick, isLoading }: StreakTrackerProps) {
   const streakDays = ['MON', 'TUE', 'WED', 'THU', 'FRI'];
   const completedDays = 4; // Example: 4 out of 5 days completed
+
+  const handleSaveToday = () => {
+    // Logic to open deposit for the first goal
+    if (goals.length > 0) {
+      onSaveTodayClick(goals[0]);
+    }
+  }
 
   return (
     <div
@@ -68,9 +83,17 @@ export function StreakTracker() {
             {completedDays} Day Streak
           </h3>
         </div>
-        <Button className="bg-green-500 hover:bg-green-600 text-black font-bold shadow-lg">
-          Save Today
-        </Button>
+        {isLoading ? (
+          <Skeleton className="h-10 w-28" />
+        ) : (
+          <Button 
+            className="bg-green-500 hover:bg-green-600 text-black font-bold shadow-lg"
+            onClick={handleSaveToday}
+            disabled={goals.length === 0}
+          >
+            Save Today
+          </Button>
+        )}
       </div>
 
       <div className="flex items-center justify-center">
