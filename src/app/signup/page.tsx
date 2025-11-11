@@ -143,16 +143,16 @@ export default function OnboardingPage() {
 
   return (
     <FormProvider {...methods}>
-      <div className="flex flex-col h-screen bg-black text-white overflow-hidden">
-        <div className="relative flex-1 flex items-center justify-center p-4 md:p-8">
+      <div className="flex flex-col min-h-screen bg-black text-white">
+        <div className="relative flex-1 flex items-center justify-center p-4 md:p-8 min-h-[40vh] md:min-h-[50vh]">
           <OnboardingGraphic step={currentStep} />
         </div>
         
         <motion.div 
           className="flex flex-col justify-center p-6 bg-background rounded-t-3xl border-t border-white/10"
-          initial={{ y: '100%' }}
-          animate={{ y: 0 }}
-          transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+          initial={{ y: 100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ type: 'spring', stiffness: 100, damping: 20, delay: 0.2 }}
         >
           <div className="w-full max-w-md mx-auto flex flex-col justify-center">
             <AnimatePresence mode="wait">
