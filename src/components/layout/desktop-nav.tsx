@@ -4,6 +4,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 import {
   Sheet,
   SheetContent,
@@ -42,7 +43,7 @@ export function DesktopNav() {
           <SheetHeader className="p-4 border-b">
             <SheetTitle className="sr-only">Main Navigation</SheetTitle>
             <Link href="/" className="flex items-center gap-2" onClick={() => setIsOpen(false)}>
-              <Gamepad2 className="h-6 w-6 text-primary" />
+              <Image src="/images/logo.svg" alt="Finnovate Logo" width={24} height={24} />
               <h2 className="text-lg font-headline">Finnovate</h2>
             </Link>
           </SheetHeader>

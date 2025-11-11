@@ -1,6 +1,8 @@
+
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/firebase';
 import { Button } from '@/components/ui/button';
@@ -20,7 +22,7 @@ export default function LoginPage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-4">
       <div className="text-center mb-12">
-        <Gamepad2 className="h-12 w-12 text-primary mx-auto mb-4" />
+        <Image src="/images/logo.svg" alt="Finnovate Logo" width={56} height={56} className="mx-auto mb-4" />
         <h1 className="text-4xl font-headline font-bold">Welcome to Finnovate</h1>
         <p className="text-muted-foreground mt-2">Play. Save. Grow.</p>
       </div>

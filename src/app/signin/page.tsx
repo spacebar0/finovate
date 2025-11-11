@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -9,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth, useUser } from '@/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
+import Image from 'next/image';
 import {
   Card,
   CardContent,
@@ -92,7 +94,7 @@ export default function SignInPage() {
         backdropFilter: "blur(12px)",
       }}>
         <CardHeader className="items-center text-center">
-          <Gamepad2 className="h-8 w-8 text-primary mb-2" />
+          <Image src="/images/logo.svg" alt="Finnovate Logo" width={32} height={32} className="mb-2" />
           <CardTitle className="font-headline text-2xl">Welcome Back</CardTitle>
           <CardDescription>Sign in to your Finnovate account</CardDescription>
         </CardHeader>
