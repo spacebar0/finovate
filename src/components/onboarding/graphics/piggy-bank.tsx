@@ -13,7 +13,7 @@ export function PiggyBankGraphic() {
       alt={imageData.description}
       width={200}
       height={180}
-      className="w-1/2 h-auto"
+      className="w-40 h-auto md:w-52"
       data-ai-hint={imageData.imageHint}
     />
   );

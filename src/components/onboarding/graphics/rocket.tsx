@@ -13,7 +13,7 @@ export function RocketGraphic() {
       alt={imageData.description}
       width={180}
       height={220}
-      className="w-1/2 h-auto"
+      className="w-40 h-auto md:w-48"
       data-ai-hint={imageData.imageHint}
     />
   );

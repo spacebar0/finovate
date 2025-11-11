@@ -30,7 +30,7 @@ export function GoalStep({ goNext, goPrev, currentStep, totalSteps }: GoalStepPr
         title="What's Your First Quest?"
         description="Every great journey starts with a single step. What's the first thing you want to save for?"
       >
-        <div className="space-y-6">
+        <div className="space-y-4">
           <FormField
             control={control}
             name="goalTitle"

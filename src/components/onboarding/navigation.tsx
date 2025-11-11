@@ -21,7 +21,7 @@ export function OnboardingNavigation({
   isFinalStep = false,
 }: OnboardingNavigationProps) {
   return (
-    <div className="flex items-center justify-between w-full pt-8">
+    <div className="flex items-center justify-between w-full pt-4 md:pt-8">
       <div>
         {onPrev && (
           <Button

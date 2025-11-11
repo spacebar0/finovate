@@ -24,7 +24,7 @@ export function EmailStep({ goNext, goPrev, currentStep, totalSteps }: EmailStep
         title="Secure Your Account"
         description="Finally, let's set up your login details. This will keep your financial journey safe."
       >
-        <div className="space-y-6">
+        <div className="space-y-4">
           <FormField
             control={control}
             name="email"

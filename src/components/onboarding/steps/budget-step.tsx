@@ -24,7 +24,7 @@ export function BudgetStep({ goNext, goPrev, currentStep, totalSteps }: BudgetSt
         title="Set Your Financial Baseline"
         description="Let's get a rough idea of your monthly finances. You can always adjust this later."
       >
-        <div className="space-y-6">
+        <div className="space-y-4">
           <FormField
             control={control}
             name="budget"

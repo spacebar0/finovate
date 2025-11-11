@@ -13,7 +13,7 @@ export function BankGraphic() {
       alt={imageData.description}
       width={270}
       height={235}
-      className="w-2/3 h-auto"
+      className="w-48 h-auto md:w-64"
       priority
       data-ai-hint={imageData.imageHint}
     />
