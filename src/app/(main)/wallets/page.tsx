@@ -11,13 +11,15 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { DepositDialog } from '@/components/dashboard/deposit-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { Confetti } from '@/components/ui/confetti';
+import { CreateWalletDialog } from '@/components/wallets/create-wallet-dialog';
 
 export default function WalletsPage() {
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
 
-  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const [isDepositDialogOpen, setIsDepositDialogOpen] = React.useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = React.useState(false);
   const [dialogMode, setDialogMode] = React.useState<'deposit' | 'withdraw'>('deposit');
   const [selectedGoal, setSelectedGoal] = React.useState<Goal | null>(null);
   const [showConfetti, setShowConfetti] = React.useState(false);
@@ -37,7 +39,7 @@ export default function WalletsPage() {
   const handleOpenDialog = (goal: Goal, mode: 'deposit' | 'withdraw') => {
     setSelectedGoal(goal);
     setDialogMode(mode);
-    setIsDialogOpen(true);
+    setIsDepositDialogOpen(true);
   };
   
   const handleGoalComplete = (goalId: string) => {
@@ -52,14 +54,6 @@ export default function WalletsPage() {
       // We can add it here if needed.
     }
   };
-  
-  // A simple handler for the main "Create" button
-  const handleCreateWallet = () => {
-    toast({
-      title: 'Coming Soon!',
-      description: 'The ability to create new wallets is on its way.',
-    });
-  };
 
   return (
     <>
@@ -71,7 +65,7 @@ export default function WalletsPage() {
             Total Balance: <span className="font-semibold text-foreground">${totalBalance.toLocaleString()}</span>
           </p>
         </div>
-        <Button onClick={handleCreateWallet} className="bg-gradient-to-r from-primary to-secondary text-primary-foreground shadow-[0_4px_15px_rgba(53,37,139,0.35)] hover:shadow-lg transition-shadow">
+        <Button onClick={() => setIsCreateDialogOpen(true)} className="bg-gradient-to-r from-primary to-secondary text-primary-foreground shadow-[0_4px_15px_rgba(53,37,139,0.35)] hover:shadow-lg transition-shadow">
           <PlusCircle className="mr-2" />
           Create Wallet
         </Button>
@@ -104,8 +98,8 @@ export default function WalletsPage() {
 
     {goals && user && firestore && selectedGoal && (
       <DepositDialog
-        isOpen={isDialogOpen}
-        setIsOpen={setIsDialogOpen}
+        isOpen={isDepositDialogOpen}
+        setIsOpen={setIsDepositDialogOpen}
         goals={goals}
         userId={user.uid}
         onGoalComplete={handleGoalComplete}
@@ -113,6 +107,13 @@ export default function WalletsPage() {
         mode={dialogMode}
       />
     )}
+     {user && (
+        <CreateWalletDialog
+          isOpen={isCreateDialogOpen}
+          setIsOpen={setIsCreateDialogOpen}
+          userId={user.uid}
+        />
+      )}
     </>
   );
 }
