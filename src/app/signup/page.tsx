@@ -1,75 +1,97 @@
 'use client';
 
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import * as React from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useAuth, useUser, setDocumentNonBlocking } from '@/firebase';
+import { useAuth, setDocumentNonBlocking } from '@/firebase';
 import { doc, getFirestore } from 'firebase/firestore';
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
-import { Gamepad2 } from 'lucide-react';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
+
+import { OnboardingGraphic } from '@/components/onboarding/graphic';
+import { WelcomeStep } from '@/components/onboarding/steps/welcome-step';
+import { NameStep } from '@/components/onboarding/steps/name-step';
+import { EmailStep } from '@/components/onboarding/steps/email-step';
+import { BudgetStep } from '@/components/onboarding/steps/budget-step';
+import { GoalStep } from '@/components/onboarding/steps/goal-step';
+import { FinalStep } from '@/components/onboarding/steps/final-step';
+
+import { useToast } from '@/hooks/use-toast';
 import type { User } from '@/firebase/auth/types';
 
-const formSchema = z.object({
-  displayName: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
-  email: z.string().email({ message: 'Please enter a valid email.' }),
-  password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
+const onboardingSchema = z.object({
+  displayName: z.string().min(2, 'Name must be at least 2 characters.'),
+  email: z.string().email('Please enter a valid email.'),
+  password: z.string().min(6, 'Password must be at least 6 characters.'),
+  budget: z.coerce.number().positive('Budget must be a positive number.'),
+  spending: z.coerce.number().min(0, 'Spending cannot be negative.'),
+  goalTitle: z.string().min(3, 'Goal title must be at least 3 characters.'),
+  goalTarget: z.coerce.number().positive('Target must be a positive number.'),
+  goalDeadline: z.date({ required_error: 'Please select a deadline.' }),
 });
 
-type SignUpFormValues = z.infer<typeof formSchema>;
+export type OnboardingData = z.infer<typeof onboardingSchema>;
 
-export default function SignUpPage() {
-  const auth = useAuth();
-  const { user } = useUser();
+const steps = [
+  { id: 'welcome', component: WelcomeStep },
+  { id: 'name', component: NameStep },
+  { id: 'email', component: EmailStep },
+  { id: 'budget', component: BudgetStep },
+  { id: 'goal', component: GoalStep },
+  { id: 'final', component: FinalStep },
+];
+
+export default function OnboardingPage() {
+  const [currentStep, setCurrentStep] = React.useState(0);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const router = useRouter();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
+  const auth = useAuth();
   const firestore = getFirestore(auth.app);
 
-  const form = useForm<SignUpFormValues>({
-    resolver: zodResolver(formSchema),
+  const methods = useForm<OnboardingData>({
+    resolver: zodResolver(onboardingSchema),
     defaultValues: {
       displayName: '',
       email: '',
       password: '',
+      budget: 1000,
+      spending: 500,
+      goalTitle: '',
+      goalTarget: 1000,
     },
   });
 
-  if (user) {
-    router.push('/');
-    return null;
-  }
+  const goNext = async () => {
+    const fieldsToValidate: (keyof OnboardingData)[][] = [
+      [], // Welcome
+      ['displayName'], // Name
+      ['email', 'password'], // Email
+      ['budget', 'spending'], // Budget
+      ['goalTitle', 'goalTarget', 'goalDeadline'], // Goal
+    ];
 
-  const onSubmit = async (values: SignUpFormValues) => {
-    setIsLoading(true);
+    const isValid = await methods.trigger(fieldsToValidate[currentStep]);
+    if (isValid) {
+      setCurrentStep(s => Math.min(s + 1, steps.length - 1));
+    }
+  };
+
+  const goPrev = () => {
+    setCurrentStep(s => Math.max(s - 1, 0));
+  };
+  
+  const onSubmit = async (data: OnboardingData) => {
+    setIsSubmitting(true);
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+      const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
       const newUser = userCredential.user;
 
       const userProfile: User = {
         uid: newUser.uid,
-        displayName: values.displayName,
+        displayName: data.displayName,
         email: newUser.email,
         avatarUrl: 'user-avatar',
         xp: 0,
@@ -78,138 +100,71 @@ export default function SignUpPage() {
         joinedAt: new Date().toISOString(),
         parentConsent: false,
         budget: {
-          spending: 450.75,
-          budget: 600,
-          savingsGoal: 200,
-          currentSavings: 150,
-        }
+          budget: data.budget,
+          spending: data.spending,
+          savingsGoal: 200, // Default for now
+          currentSavings: 0, // Starts at 0
+        },
       };
 
       const userDocRef = doc(firestore, 'users', newUser.uid);
       setDocumentNonBlocking(userDocRef, userProfile, { merge: true });
 
-      // Seed initial goals for the new user
-      const goals = [
-        {
-          id: "goal1",
-          title: "New Laptop",
-          currentAmount: 800,
-          targetAmount: 1200,
-          deadline: "in 2 months",
-        },
-        {
-          id: "goal2",
-          title: "Summer Vacation",
-          currentAmount: 350,
-          targetAmount: 1500,
-          deadline: "in 5 months",
-        },
-        {
-          id: "goal3",
-          title: "Concert Tickets",
-          currentAmount: 150,
-          targetAmount: 200,
-          deadline: "in 3 weeks",
-        },
-      ];
+      const goal = {
+        id: 'initial-goal',
+        title: data.goalTitle,
+        currentAmount: 0,
+        targetAmount: data.goalTarget,
+        deadline: data.goalDeadline.toISOString(),
+      };
 
-      goals.forEach(goal => {
-        const goalDocRef = doc(firestore, `users/${newUser.uid}/goals`, goal.id);
-        setDocumentNonBlocking(goalDocRef, goal, { merge: false });
-      });
-
+      const goalDocRef = doc(firestore, `users/${newUser.uid}/goals`, goal.id);
+      setDocumentNonBlocking(goalDocRef, goal, { merge: false });
 
       toast({
-        title: 'Account Created!',
-        description: 'Redirecting you to the dashboard.',
+        title: 'Welcome to Finnovate!',
+        description: "You're all set. Redirecting you to the dashboard...",
       });
-      // The onAuthStateChanged listener will handle the redirect
+
+      // Redirect will be handled by the auth state listener
     } catch (error: any) {
-      console.error('Signup Error:', error);
+      console.error('Onboarding Error:', error);
       toast({
         variant: 'destructive',
         title: 'Uh oh! Something went wrong.',
         description: error.message || 'Could not create your account.',
       });
-      setIsLoading(false);
+      setIsSubmitting(false);
+      setCurrentStep(steps.findIndex(s => s.id === 'email')); // Go back to email step
     }
   };
 
+  const CurrentStepComponent = steps[currentStep].component;
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background p-4">
-      <Card className="w-full max-w-sm bg-card/80 backdrop-blur-lg">
-        <CardHeader className="items-center text-center">
-          <Gamepad2 className="h-8 w-8 text-primary mb-2" />
-          <CardTitle className="font-headline text-2xl">Create an Account</CardTitle>
-          <CardDescription>Start your gamified financial journey</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="displayName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Display Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Alex" {...field} disabled={isLoading} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+    <FormProvider {...methods}>
+      <div className="flex flex-col min-h-screen bg-black text-white p-6 relative overflow-hidden">
+        <OnboardingGraphic step={currentStep} />
+        <div className="flex-1 flex flex-col justify-end z-10">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentStep}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="flex-1 flex flex-col justify-center"
+            >
+              <CurrentStepComponent
+                goNext={goNext}
+                goPrev={goPrev}
+                onSubmit={methods.handleSubmit(onSubmit)}
+                isSubmitting={isSubmitting}
               />
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="you@example.com"
-                        {...field}
-                        disabled={isLoading}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="••••••••"
-                        {...field}
-                        disabled={isLoading}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Creating Account...' : 'Sign Up'}
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-        <CardFooter className="flex justify-center text-sm">
-          <p className="text-muted-foreground">
-            Already have an account?{' '}
-            <Link href="/login" className="text-primary hover:underline">
-              Sign in
-            </Link>
-          </p>
-        </CardFooter>
-      </Card>
-    </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </div>
+    </FormProvider>
   );
 }
