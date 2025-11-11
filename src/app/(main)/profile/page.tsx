@@ -1,8 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { useUser, useDoc, useFirestore, useMemoFirebase, useCollection } from '@/firebase';
-import { collection, doc, updateDoc } from 'firebase/firestore';
+import { useUser, useDoc, useFirestore, useMemoFirebase, useCollection, updateDocumentNonBlocking } from '@/firebase';
+import { collection, doc } from 'firebase/firestore';
 import type { User, Goal } from '@/firebase/auth/types';
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -14,6 +14,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Award, CheckCircle, BarChart, Edit } from 'lucide-react';
 import { animate, useInView } from 'framer-motion';
 import { EditProfileDialog } from '@/components/profile/edit-profile-dialog';
+import { badges, Badge as BadgeType } from '@/lib/badges';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 function AnimatedNumber({ value, prefix = '', suffix = '' }: { value: number, prefix?: string, suffix?: string }) {
   const ref = React.useRef<HTMLSpanElement>(null);
@@ -56,8 +58,12 @@ function ProfilePageSkeleton() {
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            <Skeleton className="h-2 w-full" />
-            <Skeleton className="h-4 w-1/4 ml-auto" />
+             <div className="space-y-1">
+              <Progress value={0} className="h-2" />
+              <p className="text-xs text-muted-foreground text-right">
+                Loading...
+              </p>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -117,7 +123,7 @@ export default function ProfilePage() {
   
   React.useEffect(() => {
     if (userDocRef && userData && (userData.xp === 0 || !userData.xp)) {
-      updateDoc(userDocRef, { xp: initialXp, level: Math.floor(initialXp / 1000) });
+      updateDocumentNonBlocking(userDocRef, { xp: initialXp, level: Math.floor(initialXp / 1000) });
     }
   }, [userDocRef, userData]);
 
@@ -143,6 +149,8 @@ export default function ProfilePage() {
   const avatarData = PlaceHolderImages.find((img) => img.id === avatarUrl);
   const currentAvatarUrl = avatarData ? avatarData.imageUrl : avatarUrl;
 
+  const earnedBadges = badges; // For now, assume all badges are earned
+
   return (
     <>
       <div className="container mx-auto max-w-4xl p-4 md:p-6 space-y-8">
@@ -152,8 +160,9 @@ export default function ProfilePage() {
               <Avatar className="h-20 w-20 border-2 border-primary/50">
                 {currentAvatarUrl ? (
                   <AvatarImage src={currentAvatarUrl} alt={displayName || 'User Avatar'} />
-                ) : null}
-                <AvatarFallback className="text-2xl font-bold">{getInitials(displayName)}</AvatarFallback>
+                ) : (
+                  <AvatarFallback className="text-2xl font-bold">{getInitials(displayName)}</AvatarFallback>
+                )}
               </Avatar>
               <div className="flex-1">
                 <h1 className="text-2xl font-bold font-headline">{displayName}</h1>
@@ -166,7 +175,7 @@ export default function ProfilePage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-1">
-              <Progress value={xpPercentage} />
+              <Progress value={xpPercentage} className="h-2" />
               <p className="text-xs text-muted-foreground text-right">
                 {xp.toLocaleString()} / {(level + 1) * 1000} XP ({xpToNextLevel.toLocaleString()} to next level)
               </p>
@@ -182,9 +191,40 @@ export default function ProfilePage() {
           }}
         >
           <h3 className="text-lg font-bold font-headline uppercase tracking-wider">Achievements</h3>
-          <div className="flex items-center justify-center h-24">
-              <p className="text-muted-foreground">Your earned badges will appear here!</p>
-          </div>
+            {earnedBadges.length > 0 ? (
+                <TooltipProvider>
+                    <div className="grid grid-cols-3 sm:grid-cols-6 gap-4">
+                        {earnedBadges.map((badge) => {
+                            const Icon = badge.icon;
+                            return (
+                                <Tooltip key={badge.id} delayDuration={0}>
+                                    <TooltipTrigger asChild>
+                                        <div className="aspect-square flex items-center justify-center bg-background/40 rounded-lg p-3 transition-transform hover:scale-110"
+                                            style={{
+                                                border: `1px solid ${badge.color}30`,
+                                                boxShadow: `0 0 12px ${badge.color}20`,
+                                            }}>
+                                            <Icon className="h-8 w-8" style={{ color: badge.color }} />
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent style={{
+                                        background: badge.color,
+                                        color: 'black',
+                                        border: 'none',
+                                    }}>
+                                        <p className="font-bold">{badge.name}</p>
+                                        <p className="text-xs">{badge.description}</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            );
+                        })}
+                    </div>
+                </TooltipProvider>
+            ) : (
+                <div className="flex items-center justify-center h-24">
+                    <p className="text-muted-foreground">Your earned badges will appear here!</p>
+                </div>
+            )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
