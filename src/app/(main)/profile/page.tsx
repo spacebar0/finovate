@@ -1,19 +1,198 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import * as React from 'react';
+import Image from 'next/image';
+import { useUser, useDoc, useFirestore, useMemoFirebase, useCollection } from '@/firebase';
+import { collection, doc } from 'firebase/firestore';
+import type { User, Goal } from '@/firebase/auth/types';
 
-export default function ProfilePage() {
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Settings, Award, CheckCircle, BarChart, Edit } from 'lucide-react';
+import { animate, useInView } from 'framer-motion';
+
+function AnimatedNumber({ value, prefix = '', suffix = '' }: { value: number, prefix?: string, suffix?: string }) {
+  const ref = React.useRef<HTMLSpanElement>(null);
+  const isInView = useInView(ref, { once: true });
+  const [displayValue, setDisplayValue] = React.useState(0);
+
+  React.useEffect(() => {
+    if (isInView) {
+      const controls = animate(0, value, {
+        duration: 1.5,
+        ease: "easeOut",
+        onUpdate: (latest) => {
+          setDisplayValue(Math.round(latest));
+        }
+      });
+      return () => controls.stop();
+    }
+  }, [isInView, value]);
+
   return (
-    <div className="container mx-auto max-w-4xl p-4 md:p-6">
-      <Card style={{ 
-        background: "hsla(0, 0%, 100%, 0.05)",
-        backdropFilter: "blur(12px)",
-      }}>
+    <span ref={ref}>
+      {prefix}{displayValue.toLocaleString()}{suffix}
+    </span>
+  );
+}
+
+function ProfilePageSkeleton() {
+  return (
+    <div className="container mx-auto max-w-4xl p-4 md:p-6 space-y-8">
+      <Card style={{ background: "hsla(0, 0%, 100%, 0.05)", backdropFilter: "blur(12px)" }}>
         <CardHeader>
-          <CardTitle className="font-headline">Profile & Settings</CardTitle>
+          <div className="flex items-center gap-4">
+            <Skeleton className="h-20 w-20 rounded-full" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-6 w-1/2" />
+              <Skeleton className="h-4 w-1/3" />
+            </div>
+            <Skeleton className="h-10 w-10" />
+          </div>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">This is a placeholder for the Profile & Settings page.</p>
+          <div className="space-y-2">
+            <Skeleton className="h-2 w-full" />
+            <Skeleton className="h-4 w-1/4 ml-auto" />
+          </div>
+        </CardContent>
+      </Card>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {[...Array(3)].map((_, i) => (
+          <Card key={i} style={{ background: "hsla(0, 0%, 100%, 0.05)", backdropFilter: "blur(12px)" }}>
+            <CardHeader>
+              <Skeleton className="h-8 w-8" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-8 w-1/2" />
+              <Skeleton className="h-4 w-3/4 mt-2" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <Card style={{ background: "hsla(0, 0%, 100%, 0.05)", backdropFilter: "blur(12px)" }}>
+        <CardHeader>
+          <CardTitle>Achievements</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-24 w-full" />
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+export default function ProfilePage() {
+  const { user } = useUser();
+  const firestore = useFirestore();
+  const avatarData = PlaceHolderImages.find((img) => img.id === 'user-avatar');
+
+  const userDocRef = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return doc(firestore, 'users', user.uid);
+  }, [firestore, user]);
+
+  const goalsCollectionRef = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return collection(firestore, `users/${user.uid}/goals`);
+  }, [firestore, user]);
+
+  const { data: userData, isLoading: isUserLoading } = useDoc<User>(userDocRef);
+  const { data: goals, isLoading: areGoalsLoading } = useCollection<Goal>(goalsCollectionRef);
+
+  if (isUserLoading || areGoalsLoading || !userData || !goals) {
+    return <ProfilePageSkeleton />;
+  }
+
+  const { displayName, level = 1, xp = 0 } = userData;
+  const xpForNextLevel = level * 1000;
+  const xpPercentage = (xp / xpForNextLevel) * 100;
+  
+  const totalSaved = goals.reduce((acc, goal) => acc + goal.currentAmount, 0);
+  const goalsCompleted = goals.filter(g => g.currentAmount >= g.targetAmount).length;
+  // Mock efficiency for now
+  const budgetEfficiency = 85; 
+
+  return (
+    <div className="container mx-auto max-w-4xl p-4 md:p-6 space-y-8">
+      {/* User Overview Card */}
+      <Card style={{ background: "hsla(0, 0%, 100%, 0.05)", backdropFilter: "blur(12px)" }}>
+        <CardHeader>
+          <div className="flex items-center gap-4">
+            <Avatar className="h-20 w-20 border-2 border-primary/50">
+              {avatarData && <AvatarImage src={avatarData.imageUrl} alt={avatarData.description} />}
+              <AvatarFallback>{displayName?.charAt(0)}</AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold font-headline">{displayName}</h1>
+              <p className="text-sm text-muted-foreground">Level {level}</p>
+            </div>
+            <Button variant="ghost" size="icon">
+              <Edit className="h-5 w-5" />
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-1">
+            <Progress value={xpPercentage} className="h-2 bg-primary/20" />
+            <p className="text-xs text-muted-foreground mt-1 text-right">
+              {xp.toLocaleString()} / {xpForNextLevel.toLocaleString()} XP
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Financial Summary Dashboard */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card style={{ background: "hsla(0, 0%, 100%, 0.05)", backdropFilter: "blur(12px)" }}>
+          <CardHeader>
+             <Award className="h-8 w-8 text-accent" />
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-bold font-headline">
+              <AnimatedNumber value={totalSaved} prefix="$" />
+            </p>
+            <p className="text-sm text-muted-foreground">Total Saved</p>
+          </CardContent>
+        </Card>
+        <Card style={{ background: "hsla(0, 0%, 100%, 0.05)", backdropFilter: "blur(12px)" }}>
+          <CardHeader>
+             <CheckCircle className="h-8 w-8 text-green-400" />
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-bold font-headline">
+               <AnimatedNumber value={goalsCompleted} />
+            </p>
+            <p className="text-sm text-muted-foreground">Goals Completed</p>
+          </CardContent>
+        </Card>
+        <Card style={{ background: "hsla(0, 0%, 100%, 0.05)", backdropFilter: "blur(12px)" }}>
+          <CardHeader>
+             <BarChart className="h-8 w-8 text-primary" />
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-bold font-headline">
+              <AnimatedNumber value={budgetEfficiency} suffix="%" />
+            </p>
+            <p className="text-sm text-muted-foreground">Budget Efficiency</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Badges & Achievements Section */}
+      <Card style={{ background: "hsla(0, 0%, 100%, 0.05)", backdropFilter: "blur(12px)" }}>
+        <CardHeader>
+          <CardTitle className="font-headline">Achievements</CardTitle>
+          <CardDescription>Badges you've earned on your financial journey.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="h-24 flex items-center justify-center">
+            <p className="text-muted-foreground">Your badges will appear here. Keep completing quests!</p>
+          </div>
         </CardContent>
       </Card>
     </div>
