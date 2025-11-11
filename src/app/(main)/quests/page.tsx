@@ -10,6 +10,11 @@ import { QuestCard } from '@/components/quests/quest-card';
 import { useToast } from '@/hooks/use-toast';
 import { Target, Check, Trophy } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useUser, useDoc, useFirestore, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
+import type { User } from '@/firebase/auth/types';
+import { Progress } from '@/components/ui/progress';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type FilterType = 'All' | Quest['category'];
 const questCategories: FilterType[] = ['All', 'Savings', 'Budgeting', 'Learning', 'Investment', 'Community'];
@@ -18,6 +23,16 @@ export default function QuestsPage() {
   const [quests, setQuests] = React.useState<Quest[]>(mockQuests);
   const [activeFilter, setActiveFilter] = React.useState<FilterType>('All');
   const { toast } = useToast();
+
+  const { user } = useUser();
+  const firestore = useFirestore();
+
+  const userDocRef = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return doc(firestore, 'users', user.uid);
+  }, [firestore, user]);
+
+  const { data: userData, isLoading: isUserDocLoading } = useDoc<User>(userDocRef);
 
   const handleStartQuest = (questId: string) => {
     setQuests(prevQuests =>
@@ -41,6 +56,9 @@ export default function QuestsPage() {
   const availableQuests = filteredQuests.filter(q => q.status === 'available');
   const completedQuests = filteredQuests.filter(q => q.status === 'completed');
 
+  const xpForNextLevel = (userData?.level || 1) * 1000;
+  const xpPercentage = userData?.xp ? (userData.xp / xpForNextLevel) * 100 : 0;
+
   return (
     <div className="container mx-auto max-w-6xl p-4 md:p-6 space-y-8">
       <Card
@@ -57,6 +75,25 @@ export default function QuestsPage() {
             Complete challenges to earn XP, level up, and unlock rewards.
           </p>
         </CardHeader>
+        <CardContent>
+          {isUserDocLoading || !userData ? (
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-1/4 mx-auto" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-2 w-1/4 ml-auto" />
+            </div>
+          ) : (
+            <div className="max-w-md mx-auto">
+              <div className="text-center text-sm text-muted-foreground mb-2">
+                Level {userData.level || 1} • {userData.xp?.toLocaleString() || 0} / {xpForNextLevel.toLocaleString()} XP
+              </div>
+              <Progress value={xpPercentage} className="h-2 bg-primary/20" />
+              <p className="text-xs text-muted-foreground mt-1 text-right">
+                {xpForNextLevel - (userData.xp || 0)} XP to next level
+              </p>
+            </div>
+          )}
+        </CardContent>
       </Card>
 
       <div className="flex flex-wrap items-center justify-center gap-2">
