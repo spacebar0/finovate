@@ -1,8 +1,9 @@
+
 'use client';
 
 import * as React from 'react';
 import Image from 'next/image';
-import { useUser, useDoc, useFirestore, useMemoFirebase, useCollection } from '@/firebase';
+import { useUser, useDoc, useFirestore, useMemoFirebase, useCollection, updateDocumentNonBlocking } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
 import type { User, Goal } from '@/firebase/auth/types';
 
@@ -109,7 +110,7 @@ export default function ProfilePage() {
     if (userDocRef && userData && userData.xp === 0) {
       updateDocumentNonBlocking(userDocRef, { xp: initialXp, level: Math.floor(initialXp / 1000) });
     }
-  }, [userDocRef, userData]);
+  }, [userDocRef, userData, initialXp]);
 
 
   if (isUserLoading || areGoalsLoading || !userData || !goals) {
