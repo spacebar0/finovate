@@ -46,13 +46,13 @@ const difficultyColors = {
   Hard: 'border-red-500/50 text-red-400',
 };
 
-const categoryColors = {
-  Savings: 'border-blue-400/50',
-  Budgeting: 'border-purple-400/50',
-  Learning: 'border-orange-400/50',
-  Investment: 'border-indigo-400/50',
-  Community: 'border-pink-400/50',
-}
+const categoryBackgrounds: { [key: string]: string } = {
+  Savings: 'hsl(210 100% 50% / 0.1)',
+  Budgeting: 'hsl(270 100% 60% / 0.1)',
+  Learning: 'hsl(30 100% 50% / 0.1)',
+  Investment: 'hsl(250 100% 60% / 0.1)',
+  Community: 'hsl(330 100% 60% / 0.1)',
+};
 
 interface QuestCardProps {
   quest: Quest;
@@ -68,17 +68,16 @@ export function QuestCard({ quest, onStartQuest }: QuestCardProps) {
       
   const isCompleted = quest.status === 'completed';
 
+  const cardStyle = {
+    background: isCompleted ? 'hsla(0, 0%, 20%, 0.2)' : categoryBackgrounds[quest.category] || 'hsla(0, 0%, 100%, 0.05)',
+    backdropFilter: 'blur(12px)',
+    border: `1px solid ${isCompleted ? 'hsl(var(--border))' : (categoryBackgrounds[quest.category] ? categoryBackgrounds[quest.category].replace('0.1', '0.3') : 'hsl(var(--border))')}`,
+  };
+
   return (
     <Card
-      className={cn(
-        'flex flex-col transition-all duration-300',
-        categoryColors[quest.category],
-        isCompleted && 'bg-background/30 border-muted/50'
-      )}
-      style={{
-        background: isCompleted ? 'hsla(0, 0%, 20%, 0.1)' : 'hsla(0, 0%, 100%, 0.05)',
-        backdropFilter: 'blur(12px)',
-      }}
+      className='flex flex-col transition-all duration-300'
+      style={cardStyle}
     >
       <CardHeader className="flex-row items-start gap-4">
         {Icon && (
