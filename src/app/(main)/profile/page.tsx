@@ -104,12 +104,16 @@ export default function ProfilePage() {
     return <ProfilePageSkeleton />;
   }
 
-  const { displayName, level = 1, xp = 0 } = userData;
+  // Hardcode XP and goals completed for demonstration
+  const xp = 10000;
+  const goalsCompleted = 67;
+  
+  const { displayName } = userData;
+  const level = Math.floor(xp / 1000);
   const xpForNextLevel = level * 1000;
-  const xpPercentage = (xp / xpForNextLevel) * 100;
+  const xpPercentage = (xp % 1000) / 1000 * 100;
   
   const totalSaved = goals.reduce((acc, goal) => acc + goal.currentAmount, 0);
-  const goalsCompleted = goals.filter(g => g.currentAmount >= g.targetAmount).length;
   // Mock efficiency for now
   const budgetEfficiency = 85; 
 
@@ -136,7 +140,7 @@ export default function ProfilePage() {
           <div className="space-y-1">
             <Progress value={xpPercentage} className="h-2 bg-primary/20" />
             <p className="text-xs text-muted-foreground mt-1 text-right">
-              {xp.toLocaleString()} / {xpForNextLevel.toLocaleString()} XP
+              {xp.toLocaleString()} / {(level * 1000).toLocaleString()} XP
             </p>
           </div>
         </CardContent>
@@ -196,5 +200,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
-    
