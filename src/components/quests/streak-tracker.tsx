@@ -5,28 +5,7 @@ import { Flame } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { Goal } from '@/firebase/auth/types';
 import { Skeleton } from '../ui/skeleton';
-
-const GhostIcon = () => (
-  <svg
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    className="text-red-500"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path d="M4 8C4 4.68629 6.68629 2 10 2H14C17.3137 2 20 4.68629 20 8V14C20 17.3137 17.3137 20 14 20H10C6.68629 20 4 17.3137 4 14V8Z" />
-    <path
-      d="M16 20V22L14 20L12 22L10 20L8 22L6 20"
-      stroke="hsl(var(--background))"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <circle cx="8.5" cy="10.5" r="1.5" fill="white" />
-    <circle cx="15.5" cy="10.5" r="1.5" fill="white" />
-  </svg>
-);
+import Image from 'next/image';
 
 const StreakDay = ({
   day,
@@ -71,7 +50,7 @@ export function StreakTracker({ goals, onSaveTodayClick, isLoading }: StreakTrac
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <GhostIcon />
+          <Image src="/images/logo.svg" alt="Finnovate Logo" width={24} height={24} />
           <h3 className="text-lg font-bold font-headline uppercase tracking-wider">
             {completedDays} Day Streak
           </h3>
